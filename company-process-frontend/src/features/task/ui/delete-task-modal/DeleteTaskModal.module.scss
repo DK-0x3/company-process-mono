@@ -1,0 +1,38 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+.nameProcess {
+    font-size: 20px;
+    align-self: center;
+}
+
+.childProcesses {
+    display: flex;
+    max-height: 300px;
+    overflow-y: auto;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .card {
+        background-color: colors.$gray-10;
+        padding: 7px;
+        border-radius: 20px;
+    }
+}
+
+.buttons {
+    display: flex;
+    margin-top: 50px;
+    align-self: center;
+    gap: 50px;
+}

@@ -1,0 +1,122 @@
+@use "/src/app/styles/colors" as colors;
+
+label {
+    color: colors.$gray-200;
+}
+
+.wrapper {
+    width: 60%;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+.positionContainer {
+    display: flex;
+    flex-direction: column;
+
+    .button {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+.hireDateContainer {
+    grid-column: 1 / 3;
+}
+
+.dateContainer {
+    display: flex;
+    flex-direction: column;
+
+    .container {
+        width: 100%;
+    }
+
+    .input {
+        width: 100%;
+        padding: 0.6rem 0.9rem;
+        border: 2px solid colors.$gray-100;
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.mainGrid {
+    display: grid;
+    grid-template-columns: calc(50% - 10px) calc(50% - 10px);
+    gap: 20px;
+}
+
+.createButton {
+    margin-top: 50px;
+    width: 100%;
+}
+
+.errorInput {
+    border: 2px solid red;
+}
+
+.input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.permissionsSection {
+    border: 1px solid colors.$gray-100;
+    border-radius: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.75);
+
+    h3 {
+        margin: 0 0 12px;
+    }
+}
+
+.permissionsHeader,
+.permissionsRow {
+    display: grid;
+    grid-template-columns: 1fr 130px 160px;
+    align-items: center;
+    gap: 10px;
+}
+
+.permissionsHeader {
+    padding: 0 4px 8px;
+    color: colors.$gray-200;
+    font-size: 13px;
+}
+
+.permissionsTable {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.permissionsRow {
+    padding: 10px 8px;
+    border: 1px solid colors.$gray-100;
+    border-radius: 10px;
+    background: colors.$white;
+}
+
+.permissionEntity {
+    font-weight: 600;
+}
+
+.permissionToggle {
+    display: inline-flex;
+    justify-content: center;
+
+    input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+}

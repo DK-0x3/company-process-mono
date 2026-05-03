@@ -1,0 +1,186 @@
+@use "/src/app/styles/colors" as colors;
+@use "/src/app/styles/variables" as variables;
+
+.wrapper {}
+:where(.wrapper) {
+  position: relative;
+  display: inline-block;
+}
+
+.multiRoot {
+  width: 100%;
+  display: block;
+}
+
+.mainButton {}
+:where(.mainButton) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: colors.$white;
+  color: colors.$black;
+  border: 2px solid colors.$gray-100;
+  cursor: pointer;
+  box-shadow: variables.$box-shadow-default;
+}
+
+.menu {}
+:where(.menu) {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+
+  position: absolute;
+  z-index: 9999;
+  min-width: 180px;
+  border-radius: 10px;
+  transform-origin: top;
+
+  opacity: 0;
+  transform: translateY(-10px);
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+
+  background: colors.$white;
+  color: colors.$black;
+
+  &.open {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  &.placementBottom {
+    transform-origin: top center;
+  }
+
+  &.placementTop {
+    transform-origin: bottom center;
+  }
+
+  &.placementLeft {
+    transform-origin: right center;
+  }
+
+  &.placementRight {
+    transform-origin: left center;
+  }
+}
+
+.item {}
+:where(.item) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+  background: transparent;
+  box-sizing: border-box;
+  color: colors.$black;
+
+  &:hover {
+    background: colors.$gray-10;
+    color: colors.$pink-600;
+  }
+
+  &[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  > span:first-child {
+    display: inline-flex;
+    margin-right: 8px;
+    align-items: center;
+  }
+}
+
+.selected {}
+:where(.selected) {
+  background-color: colors.$gray-400;
+  color: colors.$white;
+}
+
+.multiMenu {
+  max-height: 320px;
+  overflow-y: auto;
+  gap: 4px;
+}
+
+.multiMenu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.multiMenu::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: colors.$gray-200;
+}
+
+.multiItem {
+  align-items: flex-start;
+}
+
+.multiButtonFull {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.multiItemSelected {
+  background: rgba(82, 95, 225, 0.08);
+  color: colors.$black;
+}
+
+.multiItemSelected:hover {
+  background: rgba(82, 95, 225, 0.14);
+  color: colors.$black;
+}
+
+.multiCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid colors.$gray-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: transparent;
+  background: transparent;
+}
+
+.multiItemSelected .multiCheckbox {
+  border-color: rgba(82, 95, 225, 0.5);
+  color: colors.$pink-600;
+}
+
+.multiText {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.multiDescription {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.multiEmpty {
+  padding: 10px 12px;
+  color: colors.$gray-200;
+}

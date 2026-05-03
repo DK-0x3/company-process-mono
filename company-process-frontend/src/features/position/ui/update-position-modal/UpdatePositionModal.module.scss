@@ -1,0 +1,33 @@
+@use "/src/app/styles/colors" as colors;
+
+label {
+    color: colors.$gray-200;
+}
+
+.wrapper {
+    width: 60%;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+}
+
+.createButton {
+    margin-top: 50px;
+    width: 100%;
+}
+
+.errorInput {
+    border: 2px solid red;
+}
+
+.input {
+    width: 100%;
+    box-sizing: border-box;
+}

@@ -1,0 +1,10 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    color: colors.$violet-450;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: white;
+    outline: none;
+    border: none;
+}

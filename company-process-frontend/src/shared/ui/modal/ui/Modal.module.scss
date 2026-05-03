@@ -1,0 +1,45 @@
+@use "/src/app/styles/colors" as colors;
+
+.modal {
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contentWrapper {}
+:where(.contentWrapper) {
+    padding: 30px;
+    border-radius: 12px;
+    background-color: colors.$white;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.modalEnter {
+    opacity: 0;
+    transform: scale(1);
+}
+
+.modalEnterActive {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 400ms, transform 400ms;
+}
+
+.modalExit {
+    opacity: 1;
+    pointer-events: none;
+    transition: all 400ms;
+}
+
+.modalExitActive {
+    opacity: 0;
+    transition: all 400ms;
+}

@@ -1,0 +1,42 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.datePicker {}
+
+:where(.datePicker) {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid colors.$gray-10;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    background-color: transparent;
+    color: colors.$black;
+
+    &:focus {
+        border-color: colors.$violet-350
+    }
+
+    &:disabled {
+        background: transparent;
+        color: black;
+        border: none;
+    }
+}
+
+.todayButton {
+    color: colors.$violet-450;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.datePickerPopper {
+    z-index: 999;
+}
+.datePickerPopper.react-datepicker__triangle {
+    display: none;
+}

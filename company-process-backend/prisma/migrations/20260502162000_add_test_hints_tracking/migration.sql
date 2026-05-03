@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "TestResult" ADD COLUMN "hintsUsed" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "TestResult" ADD COLUMN "hintsTotal" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "TestResultAnswer" ADD COLUMN "usedHint" BOOLEAN NOT NULL DEFAULT false;

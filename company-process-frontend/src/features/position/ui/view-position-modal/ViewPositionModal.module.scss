@@ -1,0 +1,65 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+	width: 60%;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.label {
+	color: colors.$gray-200;
+}
+
+.metaGrid {
+	display: grid;
+	grid-template-columns: calc(50% - 10px) calc(50% - 10px);
+	gap: 20px;
+
+	div {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+}
+
+.list {
+	max-height: 220px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-right: 4px;
+
+	&::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: colors.$gray-10;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: colors.$gray-200;
+		border-radius: 5px;
+		border: none;
+	}
+}
+
+.listItem {
+	background-color: colors.$gray-100;
+	border-radius: 12px;
+	padding: 10px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.mainText {
+	font-weight: 600;
+}
+
+.subText {
+	color: colors.$gray-200;
+	font-size: 14px;
+}

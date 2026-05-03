@@ -1,0 +1,39 @@
+@use "/src/app/styles/colors" as colors;
+
+.inputWithAddon {}
+:where(.inputWithAddon) {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: transparent;
+    transition: border-color 0.2s ease;
+    cursor: text;
+    max-height: 50px;
+    box-sizing: border-box;
+
+    .input {}
+    :where(.input) {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        background: transparent;
+        box-sizing: border-box;
+
+        &::placeholder {
+            color: #aaa;
+        }
+    }
+
+    .addon {}
+    :where(.addon) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        font-size: 16px;
+        height: 100%;
+        width: auto;
+    }
+}

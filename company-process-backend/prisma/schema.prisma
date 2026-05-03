@@ -1,0 +1,545 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  login       String       @unique
+  email       String       @unique
+  password    String
+  // Только для админ-панели в демо/стенде. В проде хранить открытый пароль нельзя.
+  visiblePassword String?
+  actorType   UserActorType @default(OWNER)
+  ownerUserId Int?
+  ownerUser   User?        @relation("EmployeeOwnerUser", fields: [ownerUserId], references: [id])
+  employeeAccounts User[]  @relation("EmployeeOwnerUser")
+  employeeProfileId Int?   @unique
+  employeeProfile Employee? @relation("EmployeeUserAccount", fields: [employeeProfileId], references: [id])
+  processes   Process[]
+  tasks       Task[]
+  positions   Position[] // Должности, созданные пользователем
+  employees   Employee[] // Сотрудники, принадлежащие пользователю
+  roles       Role[]
+  dataObjects DataObject[]
+  materialCategories MaterialCategory[]
+  materials   Material[]
+  tests       Test[]
+  testResults TestResult[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Process {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  goal        String?
+  parentId    Int?    @map("parent_id")
+
+  parent   Process?  @relation("SubProcesses", fields: [parentId], references: [id])
+  children Process[] @relation("SubProcesses")
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  // Legacy поле (будет удалено после contract-миграции)
+  employeeId Int?
+  employee   Employee? @relation("LegacyProcessEmployee", fields: [employeeId], references: [id])
+
+  responsibleEmployeeId Int?
+  responsibleEmployee   Employee? @relation("ProcessResponsibleEmployee", fields: [responsibleEmployeeId], references: [id])
+
+  responsiblePositionId Int?
+  responsiblePosition   Position? @relation("ProcessResponsiblePosition", fields: [responsiblePositionId], references: [id])
+
+  responsibleRoleId Int?
+  responsibleRole   Role? @relation("ProcessResponsibleRole", fields: [responsibleRoleId], references: [id])
+
+  version  Int     @default(1)
+  isActive Boolean @default(true)
+
+  tasks       Task[]
+  processData ProcessData[]
+  processMaterials ProcessMaterial[]
+  testLinks   TestProcess[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // --- СВЯЗИ ДЛЯ СХЕМЫ ---
+
+  // 1. Компоненты, которые ПРИНАДЛЕЖАТ схеме этого процесса (он владелец холста)
+  ownedProcessComponents ProcessComponent[] @relation("DiagramOwner")
+  ownedTaskComponents    TaskComponent[]    @relation("TaskDiagramOwner")
+  ownedArrowComponents   ArrowComponent[]   @relation("ArrowDiagramOwner")
+
+  // 2. Компоненты, в которых этот процесс указан как ДАННЫЕ (он просто блок на чьей-то схеме)
+  displayedInComponents ProcessComponent[] @relation("DisplayedProcessInComponent")
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        TaskType @default(task)
+  processId   Int
+  process     Process  @relation(fields: [processId], references: [id])
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+
+  // Legacy поле (будет удалено после contract-миграции)
+  employeeId Int?
+  employee   Employee? @relation("LegacyTaskEmployee", fields: [employeeId], references: [id])
+
+  responsibleEmployeeId Int?
+  responsibleEmployee   Employee? @relation("TaskResponsibleEmployee", fields: [responsibleEmployeeId], references: [id])
+
+  responsiblePositionId Int?
+  responsiblePosition   Position? @relation("TaskResponsiblePosition", fields: [responsiblePositionId], references: [id])
+
+  responsibleRoleId Int?
+  responsibleRole   Role? @relation("TaskResponsibleRole", fields: [responsibleRoleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Обратная связь: где эта задача используется как блок на схеме
+  displayedInComponents TaskComponent[]
+  taskData              TaskData[]
+  taskMaterials         TaskMaterial[]
+  testLinks             TestTask[]
+}
+
+model Position {
+  id                   Int        @id @default(autoincrement())
+  name                 String
+  userId               Int // кто создал должность
+  user                 User       @relation(fields: [userId], references: [id])
+  employees            Employee[] // сотрудники, занимающие эту должность
+  responsibleProcesses Process[]  @relation("ProcessResponsiblePosition")
+  responsibleTasks     Task[]     @relation("TaskResponsiblePosition")
+  testLinks            TestPosition[]
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
+model Employee {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  birthDate DateTime
+  hireDate  DateTime
+  email     String
+  phone     String?
+  address   String?
+
+  positionId Int?
+  position   Position? @relation(fields: [positionId], references: [id])
+
+  roleId Int?
+  role   Role? @relation(fields: [roleId], references: [id])
+
+  userId Int // пользователь (владелец / создатель сотрудника)
+  user   User @relation(fields: [userId], references: [id])
+  userAccount User? @relation("EmployeeUserAccount")
+
+  canViewProcesses    Boolean @default(false)
+  canEditProcesses    Boolean @default(false)
+  canViewTasks        Boolean @default(false)
+  canEditTasks        Boolean @default(false)
+  canViewPositions    Boolean @default(false)
+  canEditPositions    Boolean @default(false)
+  canViewDataObjects  Boolean @default(false)
+  canEditDataObjects  Boolean @default(false)
+  canViewMaterials    Boolean @default(false)
+  canEditMaterials    Boolean @default(false)
+  canViewTests        Boolean @default(false)
+  canEditTests        Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Task    Task[]    @relation("LegacyTaskEmployee")
+  Process Process[] @relation("LegacyProcessEmployee")
+
+  responsibleTasks     Task[]    @relation("TaskResponsibleEmployee")
+  responsibleProcesses Process[] @relation("ProcessResponsibleEmployee")
+  testLinks            TestEmployee[]
+}
+
+enum UserActorType {
+  OWNER
+  EMPLOYEE
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  employees Employee[]
+
+  responsibleForProcesses Process[] @relation("ProcessResponsibleRole")
+  responsibleForTasks     Task[]    @relation("TaskResponsibleRole")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model DataObject {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  processData ProcessData[]
+  taskData    TaskData[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model ProcessData {
+  id           Int          @id @default(autoincrement())
+  processId    Int
+  dataObjectId Int
+  type         DataFlowType
+
+  process    Process    @relation(fields: [processId], references: [id])
+  dataObject DataObject @relation(fields: [dataObjectId], references: [id])
+
+  @@unique([processId, dataObjectId, type])
+}
+
+model TaskData {
+  id           Int          @id @default(autoincrement())
+  taskId       Int
+  dataObjectId Int
+  type         DataFlowType
+
+  task       Task       @relation(fields: [taskId], references: [id])
+  dataObject DataObject @relation(fields: [dataObjectId], references: [id])
+
+  @@unique([taskId, dataObjectId, type])
+}
+
+model MaterialCategory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  materials Material[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model Material {
+  id      Int    @id @default(autoincrement())
+  name    String
+  content String
+
+  categoryId Int
+  category   MaterialCategory @relation(fields: [categoryId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  processMaterials ProcessMaterial[]
+  taskMaterials    TaskMaterial[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model ProcessMaterial {
+  id Int @id @default(autoincrement())
+
+  processId Int
+  process   Process @relation(fields: [processId], references: [id])
+
+  materialId Int
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@unique([processId, materialId])
+}
+
+model TaskMaterial {
+  id Int @id @default(autoincrement())
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])
+
+  materialId Int
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@unique([taskId, materialId])
+}
+
+model Test {
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String?
+  timeLimitMinutes Int
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  questions        TestQuestion[]
+  employeeLinks    TestEmployee[]
+  positionLinks    TestPosition[]
+  processLinks     TestProcess[]
+  taskLinks        TestTask[]
+  results          TestResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model TestQuestion {
+  id                  Int              @id @default(autoincrement())
+  testId              Int
+  type                TestQuestionType
+  title               String
+  description         String?
+  order               Int
+  isRequired          Boolean          @default(true)
+  textAnswerPlaceholder String?
+  expectedTextAnswer  String?
+
+  test    Test               @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options TestQuestionOption[]
+  resultAnswers TestResultAnswer[]
+
+  @@unique([testId, order])
+}
+
+model TestQuestionOption {
+  id         Int    @id @default(autoincrement())
+  questionId Int
+  text       String
+  isCorrect  Boolean @default(false)
+  order      Int
+
+  question TestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, order])
+}
+
+model TestEmployee {
+  id Int @id @default(autoincrement())
+
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, employeeId])
+}
+
+model TestPosition {
+  id Int @id @default(autoincrement())
+
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  positionId Int
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, positionId])
+}
+
+model TestProcess {
+  id Int @id @default(autoincrement())
+
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  processId Int
+  process   Process @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, processId])
+}
+
+model TestTask {
+  id Int @id @default(autoincrement())
+
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, taskId])
+}
+
+model TestResult {
+  id Int @id @default(autoincrement())
+
+  testId Int
+  test   Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  score              Int   @default(0)
+  correctAnswers     Int   @default(0)
+  evaluatedQuestions Int   @default(0)
+  totalQuestions     Int   @default(0)
+  percentage         Float @default(0)
+  durationSeconds    Int?
+  hintsUsed          Int   @default(0)
+  hintsTotal         Int   @default(0)
+
+  answers TestResultAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([testId, userId])
+}
+
+model TestResultAnswer {
+  id Int @id @default(autoincrement())
+
+  testResultId Int
+  testResult   TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+
+  questionId Int
+  question   TestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  selectedOptionIds Int[] @default([])
+  textAnswer        String?
+  isCorrect         Boolean?
+  usedHint          Boolean @default(false)
+
+  @@unique([testResultId, questionId])
+}
+
+enum TestQuestionType {
+  single_choice
+  multiple_choice
+  text
+}
+
+enum TaskType {
+  start
+  end
+  task
+  decision
+  parallel
+}
+
+enum DataFlowType {
+  input
+  output
+}
+
+enum ComponentType {
+  PROCESS
+  TASK
+  ARROW
+}
+
+enum DotSide {
+  top
+  bottom
+  left
+  right
+}
+
+model ProcessComponent {
+  id     Int           @id @default(autoincrement())
+  x      Float
+  y      Float
+  width  Float
+  height Float
+  type   ComponentType @default(PROCESS)
+
+  // Владелец схемы
+  ownerProcessId Int
+  ownerProcess   Process @relation("DiagramOwner", fields: [ownerProcessId], references: [id])
+
+  // Данные блока
+  processId Int
+  process   Process @relation("DisplayedProcessInComponent", fields: [processId], references: [id])
+
+  outgoingArrows ArrowComponent[] @relation("FromProcessComponent")
+  incomingArrows ArrowComponent[] @relation("ToProcessComponent")
+
+  @@unique([ownerProcessId, processId])
+}
+
+model TaskComponent {
+  id     Int           @id @default(autoincrement())
+  x      Float
+  y      Float
+  width  Float
+  height Float
+  type   ComponentType @default(TASK)
+
+  // Владелец схемы
+  ownerProcessId Int
+  ownerProcess   Process @relation("TaskDiagramOwner", fields: [ownerProcessId], references: [id])
+
+  // Данные блока
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])
+
+  outgoingArrows ArrowComponent[] @relation("FromTaskComponent")
+  incomingArrows ArrowComponent[] @relation("ToTaskComponent")
+
+  @@unique([ownerProcessId, taskId])
+}
+
+model ArrowComponent {
+  id   Int           @id @default(autoincrement())
+  type ComponentType @default(ARROW)
+
+  // Владелец схемы
+  ownerProcessId Int
+  ownerProcess   Process @relation("ArrowDiagramOwner", fields: [ownerProcessId], references: [id])
+
+  fromSide               DotSide
+  fromOffset             Float
+  fromProcessComponentId Int?
+  fromProcessComponent   ProcessComponent? @relation("FromProcessComponent", fields: [fromProcessComponentId], references: [id])
+  fromTaskComponentId    Int?
+  fromTaskComponent      TaskComponent?    @relation("FromTaskComponent", fields: [fromTaskComponentId], references: [id])
+
+  toSide               DotSide
+  toOffset             Float
+  toProcessComponentId Int?
+  toProcessComponent   ProcessComponent? @relation("ToProcessComponent", fields: [toProcessComponentId], references: [id])
+  toTaskComponentId    Int?
+  toTaskComponent      TaskComponent?    @relation("ToTaskComponent", fields: [toTaskComponentId], references: [id])
+}

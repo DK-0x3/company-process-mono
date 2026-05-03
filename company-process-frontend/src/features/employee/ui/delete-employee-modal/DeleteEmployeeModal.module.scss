@@ -1,0 +1,34 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+.nameEmployee {
+    color: colors.$pink-600;
+    font-size: 25px;
+    align-self: center;
+}
+
+.position {
+    align-self: center;
+    color: colors.$gray-200;
+}
+
+.buttons {
+    display: flex;
+    margin-top: 50px;
+    align-self: center;
+    gap: 50px;
+
+    .delete {
+        background-color: colors.$pink-600;
+    }
+}

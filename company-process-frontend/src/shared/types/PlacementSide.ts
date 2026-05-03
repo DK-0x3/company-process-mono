@@ -1,0 +1,10 @@
+export enum PlacementSide {
+    BOTTOM_LEFT = 'BOTTOM_LEFT',
+    BOTTOM_RIGHT = 'BOTTOM_RIGHT',
+    TOP_LEFT = 'TOP_LEFT',
+    TOP_RIGHT = 'TOP_RIGHT',
+    LEFT_BOTTOM = 'LEFT_BOTTOM',
+    LEFT_TOP = 'LEFT_TOP',
+    RIGHT_BOTTOM = 'RIGHT_BOTTOM',
+    RIGHT_TOP = 'RIGHT_TOP',
+}

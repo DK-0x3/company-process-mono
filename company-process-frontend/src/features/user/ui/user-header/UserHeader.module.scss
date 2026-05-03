@@ -1,0 +1,84 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+
+    &:hover {
+        color: colors.$pink-600;
+    }
+}
+
+.icon {
+    font-size: 22px;
+}
+
+.login {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.menu {
+    position: fixed;
+    min-width: 220px;
+    background-color: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.12s ease-out;
+}
+
+.menuItem {
+    padding: 8px 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.email {
+    font-size: 14px;
+    color: #666;
+    word-break: break-all;
+}
+
+.divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 8px 0;
+}
+
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: colors.$pink-600;
+    background: none;
+    border: none;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background-color: #fef2f2;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

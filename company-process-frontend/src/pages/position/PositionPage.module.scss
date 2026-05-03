@@ -1,0 +1,18 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    flex: 1;
+    padding: 50px;
+    align-items: center;
+    gap: 50px;
+}
+
+.tableContainer {
+    background-color: white;
+    border-radius: 20px;
+    width: 100%;
+    padding: 20px;
+    margin-top: 20px;
+    box-sizing: border-box;
+}

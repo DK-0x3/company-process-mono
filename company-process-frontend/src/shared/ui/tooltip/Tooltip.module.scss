@@ -1,0 +1,45 @@
+.Tooltip {}
+:where(.Tooltip) {
+  position: absolute;
+  z-index: 9999;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0) scale(0.96);
+  transition:
+          opacity 180ms ease,
+          transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          visibility 180ms;
+  will-change: transform, opacity;
+}
+
+.TooltipShow {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, 0) scale(1);
+  pointer-events: auto;
+
+  &.TooltipTop,
+  &.TooltipBottom,
+  &.TooltipLeft,
+  &.TooltipRight {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.TooltipTop {
+  transform-origin: bottom center;
+  transform: translateY(8px) scale(0.96);
+}
+.TooltipBottom {
+  transform-origin: top center;
+  transform: translateY(-8px) scale(0.96);
+}
+.TooltipLeft {
+  transform-origin: right center;
+  transform: translateX(8px) scale(0.96);
+}
+.TooltipRight {
+  transform-origin: left center;
+  transform: translateX(-8px) scale(0.96);
+}

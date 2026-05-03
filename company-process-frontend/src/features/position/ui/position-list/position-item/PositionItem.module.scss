@@ -1,0 +1,31 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    display: flex;
+    padding: 15px;
+    transition: 0.2s;
+    gap: 10px;
+
+    &:nth-child(even) {
+        background-color: colors.$gray-20;
+    }
+}
+
+.iconLeft {
+    width: 24px;
+    height: 100%;
+    color: colors.$gray-100;
+
+    &:hover {
+        cursor: pointer;
+        color: colors.$pink-600;
+    }
+}
+
+.title {
+    cursor: pointer;
+
+    &:hover {
+        color: colors.$pink-600;
+    }
+}

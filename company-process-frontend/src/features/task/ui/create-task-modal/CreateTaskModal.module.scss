@@ -1,0 +1,106 @@
+.dataSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dataControls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    align-items: end;
+}
+
+.dataControlItem {
+    min-width: 0;
+}
+
+.addDataButton {
+    height: 42px;
+}
+
+.dataList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.dataItem {
+    background: #f4f6fb;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.dataType {
+    margin-left: 8px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.deleteDataButton {
+    background-color: #ff2d55;
+}
+
+.dataEmpty {
+    color: #6b7280;
+}
+
+.wrapper {
+    width: 60%;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+}
+
+.button {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.processParentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .button {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .error {
+        border: 2px solid red;
+    }
+}
+
+
+.createInput {
+    margin-top: 50px;
+}
+
+.errorInput {
+    border: 2px solid red;
+}
+
+.input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.materialSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

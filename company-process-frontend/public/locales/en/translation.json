@@ -1,0 +1,14 @@
+{
+  "Короткий язык": "EN",
+  "Нажмите на логотипы, чтобы узнать больше": "Click on the logos to learn more",
+  "Ошибка, страница не найдена": "Error, page not found",
+  "На главную": "Go main page",
+  "Шаблон": "Template",
+  "Переводы I18Next": "Translations I18Next",
+  "Технологический стек": "Technological stack",
+  "\uD83D\uDD27 Инструменты разработки": "\uD83D\uDD27 Development Tools",
+  "Интеграция ESLint с TypeScript": "Integration of ESLint with TypeScript",
+  "Стилизация на SCSS": "Stylization on SCSS",
+  "Переведено на Язык": "Translated into English",
+  "Описание проекта": "A basic template for quickly starting a new project with <strong>React 19</strong>, featuring <strong>TypeScript</strong> and <strong>Vite</strong>.<br/>The template already includes routing, state management, localization, and ready-to-use UI components."
+}

@@ -1,0 +1,1 @@
+export type DotSide = 'top' | 'bottom' | 'left' | 'right';

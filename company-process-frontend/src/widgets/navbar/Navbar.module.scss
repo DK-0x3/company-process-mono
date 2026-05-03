@@ -1,0 +1,63 @@
+@use "/src/app/styles/colors" as colors;
+@use "/src/app/styles/variables" as variables;
+
+.wrapper {
+    height: variables.$navbar-height;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    padding-right: 20px;
+    justify-content: space-between;
+    background-color: colors.$white;
+
+    .logoAndTitle {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            font-weight: bold;
+            font-size: 25px;
+            cursor: pointer;
+            color: black;
+            transition: color 0.4s ease;
+
+            &:hover {
+                background: linear-gradient(90deg, colors.$pink-200, colors.$violet-450, colors.$pink-200);
+                background-size: 200% auto;
+                animation: gradient-move 2s linear infinite;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                color: transparent;
+            }
+
+            .logo {
+                height: 100%;
+                width: auto;
+                padding: 5px;
+                box-sizing: border-box;
+                margin-right: 15px;
+            }
+        }
+
+    .navBar {
+        display: flex;
+        gap: 20px;
+    }
+
+    .navLink {
+        color: colors.$black;
+
+        &.active {
+            color: colors.$pink-600;
+        }
+    }
+
+    @keyframes gradient-move {
+        0% {
+            background-position: 0% center;
+        }
+        100% {
+            background-position: 200% center;
+        }
+    }
+}

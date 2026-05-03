@@ -1,0 +1,25 @@
+const routes = {
+	HOME: '/',
+	CABINET: '/cabinet',
+	CABINET_TESTS: '/cabinet/tests',
+	NOT_FOUND: '/404',
+	LOGIN: '/login',
+	REGISTER: '/register',
+	EMPLOYEE: '/employees',
+	POSITION: '/positions',
+	ROLE: '/roles',
+	DATA_OBJECT: '/data-objects',
+	MATERIAL: '/materials',
+	MATERIAL_CREATE: '/materials/new',
+	MATERIAL_EDIT: '/materials/:materialId/edit',
+	TEST: '/tests',
+	TEST_CREATE: '/tests/new',
+	TEST_EDIT: '/tests/:testId/edit',
+	TEST_PASS: '/tests/:testId/pass',
+	TEST_STATS: '/tests/:testId/stats',
+	CABINET_TEST_PASS: '/cabinet/tests/:testId/pass',
+	EDITOR: '/editor/:processId',
+	PROCESS_DOCUMENTATION: '/processes/:processId/docs',
+};
+
+export default routes;

@@ -1,0 +1,179 @@
+@use '/src/app/styles/colors' as colors;
+@use '/src/app/styles/variables' as variables;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 18px;
+}
+
+.hero {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 18px;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.86));
+	border-radius: 16px;
+	box-shadow: variables.$box-shadow-default;
+}
+
+.title {
+	margin: 0;
+	font-size: 26px;
+}
+
+.subtitle {
+	margin: 8px 0 0;
+	color: colors.$gray-400;
+}
+
+.metrics {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(180px, 1fr));
+	gap: 10px;
+}
+
+.metric {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 12px;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid colors.$gray-100;
+
+	span {
+		color: colors.$gray-200;
+		font-size: 12px;
+	}
+
+	b {
+		font-size: 20px;
+	}
+}
+
+.toolsRow {
+	display: grid;
+	grid-template-columns: 1fr 280px;
+	gap: 12px;
+}
+
+.searchCard,
+.actionsCard,
+.tableCard {
+	background: rgba(255, 255, 255, 0.88);
+	border-radius: 14px;
+	padding: 14px;
+	box-shadow: variables.$box-shadow-default;
+}
+
+.toolsLabel {
+	display: inline-block;
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+
+.search {
+	width: 100%;
+}
+
+.searchInput {
+	width: 100%;
+}
+
+.searchIcon {
+	width: 16px;
+	height: 16px;
+	opacity: 0.8;
+}
+
+.actionsCard {
+	display: flex;
+	align-items: center;
+}
+
+.primaryButton {
+	width: 100%;
+	padding: 10px 12px;
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(135deg, colors.$violet-250, colors.$violet-350);
+	color: colors.$white;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+
+	th,
+	td {
+		padding: 12px 10px;
+		border-bottom: 1px solid colors.$gray-100;
+		text-align: left;
+	}
+
+	th {
+		color: colors.$gray-200;
+		font-weight: 600;
+	}
+}
+
+.actionRow {
+	display: flex;
+	gap: 8px;
+}
+
+.actionPrimary,
+.actionInfo,
+.actionSecondary,
+.actionDanger {
+	border: none;
+	padding: 8px 12px;
+	border-radius: 10px;
+	color: colors.$white;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.actionSecondary {
+	background: colors.$violet-350;
+}
+
+.actionInfo {
+	background: #2f7cc0;
+}
+
+.actionDanger {
+	background: colors.$pink-600;
+}
+
+.empty {
+	padding: 20px;
+	text-align: center;
+	color: colors.$gray-200;
+}
+
+@media (max-width: 1100px) {
+	.hero {
+		flex-direction: column;
+	}
+
+	.metrics {
+		width: 100%;
+		grid-template-columns: repeat(2, minmax(120px, 1fr));
+	}
+}
+
+@media (max-width: 920px) {
+	.toolsRow {
+		grid-template-columns: 1fr;
+	}
+
+	.tableCard {
+		overflow-x: auto;
+	}
+}

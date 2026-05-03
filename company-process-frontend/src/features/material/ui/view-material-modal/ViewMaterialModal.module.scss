@@ -1,0 +1,147 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    width: min(900px, calc(100vw - 80px));
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: colors.$gray-100;
+        border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, colors.$gray-400 0%, colors.$gray-200 100%);
+        border-radius: 999px;
+        border: 2px solid colors.$gray-100;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: colors.$gray-200 colors.$gray-100;
+}
+
+.wrapperFullscreen {
+    width: calc(100vw - 28px);
+    max-height: calc(100vh - 28px);
+}
+
+.loading {
+    color: colors.$gray-200;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.topRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.titleWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    color: colors.$gray-200;
+}
+
+.title {
+    margin: 0;
+}
+
+.expandButton {
+    border: 1px solid colors.$gray-100;
+    background: colors.$white;
+    color: colors.$gray-500;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+        border-color: colors.$gray-200;
+        transform: translateY(-1px);
+    }
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.metaItem {
+    background: colors.$gray-100;
+    border: 1px solid colors.$gray-100;
+    border-radius: 999px;
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metaKey {
+    color: colors.$gray-200;
+    font-size: 13px;
+}
+
+.metaValue {
+    color: colors.$black;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.content {
+    border-radius: 14px;
+    background: colors.$white;
+    border: 1px solid colors.$gray-100;
+    padding: 14px 16px;
+}
+
+.content :global(.wmde-markdown) {
+    background-color: transparent;
+    color: colors.$black;
+}
+
+.content :global(.wmde-markdown pre),
+.content :global(.wmde-markdown code) {
+    border-radius: 8px;
+}
+
+.content :global(.wmde-markdown pre) {
+    background: #f6f8fa !important;
+    color: #1f2328 !important;
+    border: 1px solid colors.$gray-100;
+    padding: 12px 14px;
+    overflow-x: auto;
+}
+
+.content :global(.wmde-markdown pre code) {
+    background: transparent !important;
+    color: inherit !important;
+    border: none;
+    padding: 0;
+}
+
+.content :global(.wmde-markdown :not(pre) > code) {
+    background: #f1f3f5 !important;
+    color: #1f2328 !important;
+    border-radius: 6px;
+    border: 1px solid colors.$gray-100;
+    padding: 0.15em 0.45em;
+}

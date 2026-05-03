@@ -1,0 +1,63 @@
+@use "/src/app/styles/colors" as colors;
+
+// Весь контенер с календарем
+.react-datepicker {
+    padding: 12px;
+
+    // Кнопка сегодня
+    .react-datepicker__today-button {
+        background: white;
+        border-top: 1px solid #323232;
+    }
+}
+
+// Недели (строка с датами)
+.react-datepicker__week {
+
+    // Выделение сегодняшнего дня
+    .react-datepicker__day--today {
+        border: 2px solid colors.$violet-350;
+        border-radius: 0.5em;
+    }
+}
+
+// Весь контейнер с неделями и датами
+.react-datepicker__month-container {
+
+    // Загаловок календаря, где указан месяц
+    .react-datepicker__header {
+        padding: 0 0 0.2rem 0;
+        background-color: white;
+
+        // Загаловок текущего месяца
+        .react-datepicker__current-month {
+            color: black;
+            font-weight: bold;
+        }
+    }
+}
+
+.react-datepicker__input-container .react-datepicker__calendar-icon {
+    display: flex;
+    align-self: center;
+    padding-left: 0 0 0 10px;
+}
+
+.react-datepicker__view-calendar-icon input {
+    text-align: center;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+// Выбранные день в календаре
+.react-datepicker__day--selected {
+    background-color: colors.$violet-250;
+    color: colors.$white;
+}
+
+.react-datepicker__day--keyboard-selected {
+    background-color: colors.$violet-150;
+}
+.react-datepicker__day--keyboard-selected:not([aria-disabled=true]):hover {
+    background-color: colors.$violet-150;
+}

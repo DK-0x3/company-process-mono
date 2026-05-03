@@ -1,0 +1,33 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+
+    .actionButtons {
+        display: flex;
+        gap: 20px;
+    }
+
+    .search {
+        background-color: white;
+        width: 40%;
+        border: 2px solid colors.$gray-100;
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            color: black;
+        }
+
+        .input {
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 18px;
+            color: black;
+            margin-left: 5px;
+        }
+    }
+}

@@ -1,0 +1,184 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {
+    width: 60%;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h2 {
+        text-align: center;
+    }
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: colors.$gray-100;
+        border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, colors.$gray-400 0%, colors.$gray-200 100%);
+        border-radius: 999px;
+        border: 2px solid colors.$gray-100;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: colors.$gray-200 colors.$gray-100;
+}
+
+.label {
+    color: colors.$gray-200;
+}
+
+.metaGrid {
+    display: grid;
+    grid-template-columns: calc(50% - 10px) calc(50% - 10px);
+    gap: 20px;
+
+    div {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+.processParentContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .button {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+.containerTask {
+    overflow-y: auto;
+    max-height: 300px;
+
+    .task {
+        background-color: colors.$gray-100;
+        margin: 5px;
+        padding: 10px;
+        border-radius: 20px;
+    }
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: colors.$gray-100;
+        border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, colors.$gray-400 0%, colors.$gray-200 100%);
+        border-radius: 999px;
+        border: 1px solid colors.$gray-100;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: colors.$gray-200 colors.$gray-100;
+}
+
+.list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: colors.$gray-100;
+        border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, colors.$gray-400 0%, colors.$gray-200 100%);
+        border-radius: 999px;
+        border: 1px solid colors.$gray-100;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: colors.$gray-200 colors.$gray-100;
+}
+
+.listItem {
+    background-color: colors.$gray-100;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.materialListButton {
+    width: 100%;
+    background-color: colors.$gray-100;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        border-color: colors.$gray-200;
+        transform: translateY(-1px);
+    }
+}
+
+.listItemDisabled {
+    cursor: default;
+    opacity: 0.8;
+}
+
+.chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    background-color: colors.$gray-100;
+    border-radius: 999px;
+    padding: 6px 10px;
+}
+
+.mainText {
+    font-weight: 600;
+}
+
+.subText {
+    color: colors.$gray-200;
+    font-size: 14px;
+}
+
+.createInput {
+    margin-top: 50px;
+}
+
+.errorInput {
+    border: 2px solid red;
+}
+
+.input {
+    width: 100%;
+    box-sizing: border-box;
+}

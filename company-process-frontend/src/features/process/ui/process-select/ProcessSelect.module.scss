@@ -1,0 +1,117 @@
+@use "/src/app/styles/colors" as colors;
+
+.wrapper {}
+
+:where(.wrapper) {
+    display: flex;
+    position: relative;
+    width: 100%;
+
+    &.disabled {
+        pointer-events: none;
+
+        .trigger {
+            border: 1px solid transparent;
+        }
+    }
+
+    .selected {
+        display: flex;
+        align-items: center;
+
+        .name {
+            margin-left: 8px;
+        }
+    }
+
+    .chevron {
+        display: flex;
+        margin-left: 4px;
+
+        &.disabled {
+            display: none;
+        }
+    }
+
+    .placeholder {
+        color: colors.$gray-400;
+    }
+}
+
+.trigger {}
+:where(.trigger) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 2px solid colors.$gray-100;
+    width: 100%;
+    padding: 8px 14px;
+    border-radius: 6px;
+    justify-content: space-between;
+}
+
+.popoverContainer {}
+:where(.popoverContainer) {
+    border: none;
+    overflow: hidden;
+    height: 480px;
+    flex-direction: column;
+    padding-right: 16px;
+    position: absolute;
+    display: none;
+    background-color: white;
+    left: 0;
+    width: 100%;
+    top: calc(100% + 4px);
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 6px;
+
+    &.open {
+        display: flex;
+    }
+
+    .search {
+        margin: 16px;
+        font-size: 16px;
+        padding: 8px 8px 8px 8px;
+        border-radius: 8px;
+        border: 1px solid colors.$gray-100;
+    }
+
+    .content {}
+    :where(.content) {
+        overflow-y: scroll;
+        padding-right: 16px;
+
+        // Chrome / Edge / Safari / Яндекс
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: colors.$gray-10;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: colors.$gray-200;
+            border-radius: 5px;
+            border: none;
+        }
+
+        @-moz-document url-prefix() {
+            .content {
+                scrollbar-width: thin;
+                scrollbar-color: colors.$gray-500 colors.$gray-400;
+            }
+        }
+    }
+}
+
+.leafContainer {
+    border: none;
+}
+
+.groupContent {
+    border: none;
+}

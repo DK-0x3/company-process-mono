@@ -1,0 +1,42 @@
+@use "/src/app/styles/colors" as colors;
+
+.menu {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    min-width: 180px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    padding: 6px;
+    z-index: 10000;
+}
+
+.menuItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 10px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    font-size: 14px;
+    color: #1f2937;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #f3f4f6;
+        color: colors.$pink-600;
+    }
+
+    &:disabled {
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+}
+
+.icon {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+}
