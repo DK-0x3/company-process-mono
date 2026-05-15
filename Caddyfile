@@ -2,3 +2,8 @@
   encode zstd gzip
   reverse_proxy frontend:80
 }
+
+django.kezarev.ru {
+  encode zstd gzip
+  reverse_proxy host.docker.internal:8001
+}
