@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Инциденты</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'incidents_export_pdf' %}">Экспорт PDF</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'capa_export_pdf' %}">CAPA PDF</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'incident_cause_list' %}">Причины</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'incidents_print' %}" target="_blank">Печать</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Инциденты создаются автоматически по правилам Early Warning (падение яйценоскости, бой, низкий остаток корма).
+    Здесь можно менять статус, указывать причину и заполнять CAPA.
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label">Статус</label>
+                <select name="status" class="form-select">
+                    <option value="">Все</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label">Стадо</label>
+                <select name="flock_id" class="form-select">
+                    <option value="">Все</option>
+                    {% for flock in flocks %}
+                        <option value="{{ flock.id }}" {% if filters.flock_id == flock.id|stringformat:"s" %}selected{% endif %}>{{ flock.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">С даты</label>
+                <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">По дату</label>
+                <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit">Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Статус</th>
+                <th>Серьезность</th>
+                <th>Тип</th>
+                <th>Стадо</th>
+                <th>Причина</th>
+                <th>CAPA</th>
+                <th>Заголовок</th>
+                <th>Описание</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for incident in incidents %}
+                <tr>
+                    <td>{{ incident.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ incident.get_status_display }}</td>
+                    <td>{{ incident.get_severity_display }}</td>
+                    <td>{{ incident.get_alert_type_display }}</td>
+                    <td>{{ incident.flock.name|default:"-" }}</td>
+                    <td>{{ incident.cause.name|default:"-" }}</td>
+                    <td>
+                        {% if incident.capa_action %}
+                            {{ incident.capa_action|truncatechars:80 }}
+                            <br><span class="text-secondary small">
+                                {{ incident.capa_responsible.username|default:"-" }} / {{ incident.capa_due_date|date:"d.m.Y"|default:"-" }}
+                            </span>
+                        {% else %}
+                            <span class="text-secondary">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ incident.title }}</td>
+                    <td class="text-secondary">{{ incident.message }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-outline-primary btn-sm mb-1" href="{% url 'incident_export_pdf' incident.id %}">PDF</a>
+                        {% if incident.alert_type == "receivable_overdue" %}
+                            <a class="btn btn-outline-primary btn-sm mb-1" href="{% url 'incident_overdue_notice_pdf' incident.id %}">Счет PDF</a>
+                        {% endif %}
+                        {% if can_change_alert %}
+                            <a class="btn btn-outline-secondary btn-sm mb-1" href="{% url 'incident_capa_update' incident.id %}">CAPA</a>
+                        {% endif %}
+                        {% if can_change_alert %}
+                            <form method="post" action="{% url 'incident_status_update' incident.id %}">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    <select name="status" class="form-select">
+                                        {% for value, label in status_choices %}
+                                            <option value="{{ value }}" {% if incident.status == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="submit">OK</button>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="10" class="text-secondary">Инцидентов нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Инциденты SmartPoultry</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; text-align: left; }
+        th { background: #f3f4f6; }
+        .toolbar { margin-bottom: 10px; }
+        @media print { .toolbar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="toolbar">
+    <button onclick="window.print()">Печать</button>
+</div>
+<h2>Инциденты SmartPoultry</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Дата</th>
+        <th>Статус</th>
+        <th>Серьезность</th>
+        <th>Тип</th>
+        <th>Стадо</th>
+        <th>Заголовок</th>
+        <th>Описание</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for incident in incidents %}
+        <tr>
+            <td>{{ incident.created_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ incident.get_status_display }}</td>
+            <td>{{ incident.get_severity_display }}</td>
+            <td>{{ incident.get_alert_type_display }}</td>
+            <td>{{ incident.flock.name|default:"-" }}</td>
+            <td>{{ incident.title }}</td>
+            <td>{{ incident.message }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7">Инцидентов нет.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

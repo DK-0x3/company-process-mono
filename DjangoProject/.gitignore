@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual env
+.venv/
+venv/
+
+# Local env
+.env
+.env.*
+
+# Django runtime
+staticfiles/
+media/
+generated_reports/
+db.sqlite3
+
+# IDE/OS
+.idea/
+.DS_Store

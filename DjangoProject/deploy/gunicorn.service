@@ -1,0 +1,21 @@
+[Unit]
+Description=Gunicorn for SmartPoultry Django
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/smartpoultry
+EnvironmentFile=/opt/smartpoultry/.env
+ExecStart=/opt/smartpoultry/.venv/bin/gunicorn DjangoProject.wsgi:application \
+  --bind 127.0.0.1:8001 \
+  --workers 3 \
+  --timeout 120 \
+  --access-logfile - \
+  --error-logfile -
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

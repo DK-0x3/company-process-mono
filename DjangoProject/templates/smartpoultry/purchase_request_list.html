@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Заявки на закупку</h1>
+    <div class="d-flex gap-2">
+        {% if perms.smartpoultry.add_purchaserequest %}
+            <a class="btn btn-primary btn-sm" href="{% url 'purchase_request_create' %}">Новая заявка</a>
+        {% endif %}
+        {% if can_receive %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'purchase_receipt' %}">Приход по заявке</a>
+        {% endif %}
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'purchase_requests_export_pdf' %}">Экспорт PDF</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'purchase_requests_print' %}" target="_blank">Печать</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Заявки бывают автоматические (создаются системой при низком прогнозе остатка корма)
+    и ручные (кнопка “Новая заявка”). После утверждения заявка появляется в “Приход по заявке”.
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label">Статус</label>
+                <select name="status" class="form-select">
+                    <option value="">Все</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label">Стадо</label>
+                <select name="flock_id" class="form-select">
+                    <option value="">Все</option>
+                    {% for flock in flocks %}
+                        <option value="{{ flock.id }}" {% if filters.flock_id == flock.id|stringformat:"s" %}selected{% endif %}>{{ flock.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">С даты</label>
+                <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">По дату</label>
+                <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit">Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Корпус</th>
+                <th>Стадо</th>
+                <th>Корм</th>
+                <th>Объем, кг</th>
+                <th>Принято, кг</th>
+                <th>Остаток, кг</th>
+                <th>Дней до нуля</th>
+                <th>Статус</th>
+                <th>Комментарий</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in purchase_requests %}
+                <tr>
+                    <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ item.flock.house.name|default:"-" }}</td>
+                    <td>{{ item.flock.name|default:"-" }}</td>
+                    <td>{{ item.feed_type.name }}</td>
+                    <td>{{ item.requested_kg }}</td>
+                    <td>{{ item.received_kg }}</td>
+                    <td>{{ item.remaining_kg }}</td>
+                    <td>{{ item.days_to_zero|floatformat:2 }}</td>
+                    <td>{{ item.get_status_display }}</td>
+                    <td>{{ item.note|default:"-" }}</td>
+                    <td class="text-end">
+                        {% if can_approve and item.status == "pending" %}
+                            <form method="post" action="{% url 'purchase_request_decision' item.id 'approve' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-success btn-sm" type="submit">Утвердить</button>
+                            </form>
+                            <form method="post" action="{% url 'purchase_request_decision' item.id 'reject' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger btn-sm" type="submit">Отклонить</button>
+                            </form>
+                        {% else %}
+                            <span class="text-secondary small">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="11" class="text-secondary">Заявок пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

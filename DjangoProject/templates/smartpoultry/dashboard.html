@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Операционный дашборд</h1>
+    <div class="d-flex flex-wrap gap-2">
+        {% if perms.smartpoultry.add_dailyproductionrecord %}
+            <a class="btn btn-primary btn-sm" href="{% url 'daily_record_create' %}">
+                <i class="bi bi-plus-circle me-1"></i> Новая запись
+            </a>
+        {% endif %}
+        {% if perms.smartpoultry.view_alert or is_owner %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'incidents_list' %}">
+                <i class="bi bi-exclamation-triangle me-1"></i> Инциденты
+            </a>
+        {% endif %}
+        {% if perms.smartpoultry.view_dashboard or is_owner %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'egg_dashboard' %}">
+                <i class="bi bi-graph-up me-1"></i> Яйценоскость
+            </a>
+        {% endif %}
+        {% if perms.smartpoultry.generate_report or is_owner %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'weekly_report_pdf' %}">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Недельный PDF
+            </a>
+        {% endif %}
+        {% if is_owner %}
+            <form action="{% url 'seed_reference_data' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary btn-sm" type="submit">
+                    <i class="bi bi-database-add me-1"></i> Обновить справочники
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Эффективность = (яйца / живое поголовье) × 100. В интерфейсе “Яйценоскость” тот же показатель показан как “яиц на 100 голов” для удобства настройки эталона.
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Активных корпусов</div>
+                <div class="kpi-value">{{ active_houses }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Активных стад</div>
+                <div class="kpi-value">{{ active_flocks }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Живое поголовье</div>
+                <div class="kpi-value">{{ live_population }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Сбор за 7 дней</div>
+                <div class="kpi-value">{{ week_eggs }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Открытые инциденты</div>
+                <div class="kpi-value">{{ open_alerts }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Валовая прибыль (день)</div>
+                <div class="kpi-value">{{ daily_profit|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Продажи (день)</div>
+                <div class="kpi-value">{{ daily_sales|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Текущая дебиторка</div>
+                <div class="kpi-value">{{ receivable_total|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Яйценоскость сегодня, %</div>
+                <div class="kpi-value">{{ overall_eff_today|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm card-kpi">
+            <div class="card-body">
+                <div class="kpi-label">Эталон сегодня, %</div>
+                <div class="kpi-value">{{ overall_standard_today|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <div class="fw-semibold">Раздел “Яйценоскость по корпусам и стадам”</div>
+            <div class="text-secondary small">Просмотр по каждой группе и настройка эталона по неделям кросса.</div>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'egg_dashboard' %}">Открыть раздел</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Яйценоскость: факт vs эталон (14 дней)</strong></div>
+            <div class="card-body">
+                <canvas id="efficiencyChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Валовая прибыль по дням (14 дней)</strong></div>
+            <div class="card-body">
+                <canvas id="profitChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Остаток корма в днях</strong></div>
+    <div class="card-body">
+        <canvas id="feedDaysChart" height="90"></canvas>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Последние инциденты</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Статус</th>
+                <th>Тип</th>
+                <th>Стадо</th>
+                <th>Описание</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for alert in latest_alerts %}
+                <tr>
+                    <td>{{ alert.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ alert.get_status_display }}</td>
+                    <td>{{ alert.get_alert_type_display }}</td>
+                    <td>{{ alert.flock.name|default:"-" }}</td>
+                    <td><strong>{{ alert.title }}</strong><br><span class="text-secondary">{{ alert.message }}</span></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-secondary">Инцидентов пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white"><strong>Остатки корма</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Корм</th>
+                <th>Остаток, кг</th>
+                <th>Прогноз, дней до нуля</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for stock in feed_stock_rows %}
+                <tr>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.quantity_kg|floatformat:2 }}</td>
+                    <td>{{ stock.days_to_zero|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" class="text-secondary">Данных по складу пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{ chart_labels|json_script:"chart-labels" }}
+{{ efficiency_actual|json_script:"chart-eff-actual" }}
+{{ efficiency_standard|json_script:"chart-eff-standard" }}
+{{ finance_profit|json_script:"chart-profit-values" }}
+{{ sales_trend|json_script:"chart-sales-values" }}
+{{ feed_days_labels|json_script:"chart-feed-days-labels" }}
+{{ feed_days_values|json_script:"chart-feed-days-values" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const labels = JSON.parse(document.getElementById("chart-labels").textContent);
+    const effActual = JSON.parse(document.getElementById("chart-eff-actual").textContent);
+    const effStandard = JSON.parse(document.getElementById("chart-eff-standard").textContent);
+    const profitValues = JSON.parse(document.getElementById("chart-profit-values").textContent);
+    const salesValues = JSON.parse(document.getElementById("chart-sales-values").textContent);
+    const feedDaysLabels = JSON.parse(document.getElementById("chart-feed-days-labels").textContent);
+    const feedDaysValues = JSON.parse(document.getElementById("chart-feed-days-values").textContent);
+
+    new Chart(document.getElementById("efficiencyChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                { label: "Факт, %", data: effActual, borderColor: "#2563eb", tension: 0.3, fill: false },
+                { label: "Эталон, %", data: effStandard, borderColor: "#f97316", tension: 0.3, fill: false }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById("profitChart"), {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [
+                { label: "Прибыль", data: profitValues, backgroundColor: "#16a34a" },
+                { label: "Продажи", data: salesValues, backgroundColor: "#2563eb" }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById("feedDaysChart"), {
+        type: "bar",
+        data: {
+            labels: feedDaysLabels,
+            datasets: [{ label: "Дней до нуля", data: feedDaysValues, backgroundColor: "#0ea5e9" }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
+{% endblock %}

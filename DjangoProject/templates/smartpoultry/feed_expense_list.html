@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Расходы на корм</h1>
+    <div class="d-flex gap-2">
+        {% if perms.smartpoultry.add_feedexpense %}
+            <a class="btn btn-primary btn-sm" href="{% url 'feed_expense_create' %}">Новый расход</a>
+        {% endif %}
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_expenses_export_excel' %}">Excel</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_expenses_export_pdf' %}">Экспорт PDF</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Ручные расходы, ₽</div><div class="h5 mb-0">{{ total_amount|floatformat:2 }}</div></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Ручной объем, кг</div><div class="h5 mb-0">{{ total_kg|floatformat:2 }}</div></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Автосписание (расчет), ₽</div><div class="h5 mb-0">{{ auto_consumption_cost|floatformat:2 }}</div></div></div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-md-2">
+                <label class="form-label">С даты</label>
+                <input type="date" class="form-control" name="date_from" value="{{ filters.date_from }}">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">По дату</label>
+                <input type="date" class="form-control" name="date_to" value="{{ filters.date_to }}">
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label">Корпус</label>
+                <select name="house_id" class="form-select">
+                    <option value="">Все</option>
+                    {% for house in houses %}
+                        <option value="{{ house.id }}" {% if filters.house_id == house.id|stringformat:"s" %}selected{% endif %}>{{ house.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label">Тип корма</label>
+                <select name="feed_type_id" class="form-select">
+                    <option value="">Все</option>
+                    {% for feed_type in feed_types %}
+                        <option value="{{ feed_type.id }}" {% if filters.feed_type_id == feed_type.id|stringformat:"s" %}selected{% endif %}>{{ feed_type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label">Статья</label>
+                <select name="expense_type" class="form-select">
+                    <option value="">Все</option>
+                    {% for value, label in expense_types %}
+                        <option value="{{ value }}" {% if filters.expense_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit">Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Корпус</th>
+                <th>Стадо</th>
+                <th>Корм</th>
+                <th>Статья</th>
+                <th>Количество, кг</th>
+                <th>Сумма, ₽</th>
+                <th>Комментарий</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.expense_date|date:"d.m.Y" }}</td>
+                    <td>{{ item.house.name|default:"-" }}</td>
+                    <td>{{ item.flock.name|default:"-" }}</td>
+                    <td>{{ item.feed_type.name|default:"-" }}</td>
+                    <td>{{ item.get_expense_type_display }}</td>
+                    <td>{{ item.quantity_kg|floatformat:2 }}</td>
+                    <td>{{ item.amount|floatformat:2 }}</td>
+                    <td>{{ item.note|default:"-" }}</td>
+                    <td class="text-end">
+                        {% if perms.smartpoultry.change_feedexpense %}
+                            <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_expense_update' item.id %}">Изменить</a>
+                        {% endif %}
+                        {% if perms.smartpoultry.delete_feedexpense %}
+                            <form method="post" action="{% url 'feed_expense_delete' item.id %}" class="d-inline" onsubmit="return confirm('Удалить запись расхода?');">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger btn-sm" type="submit">Удалить</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="9" class="text-secondary">Записей пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

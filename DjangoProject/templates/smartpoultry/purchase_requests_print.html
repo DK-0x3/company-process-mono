@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Заявки на закупку SmartPoultry</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; text-align: left; }
+        th { background: #f3f4f6; }
+        .toolbar { margin-bottom: 10px; }
+        @media print { .toolbar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="toolbar">
+    <button onclick="window.print()">Печать</button>
+</div>
+<h2>Заявки на закупку SmartPoultry</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Дата</th>
+        <th>Статус</th>
+        <th>Стадо</th>
+        <th>Корм</th>
+        <th>Запрошено, кг</th>
+        <th>Принято, кг</th>
+        <th>Осталось, кг</th>
+        <th>Комментарий</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in purchase_requests %}
+        <tr>
+            <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ item.get_status_display }}</td>
+            <td>{{ item.flock.name|default:"-" }}</td>
+            <td>{{ item.feed_type.name }}</td>
+            <td>{{ item.requested_kg }}</td>
+            <td>{{ item.received_kg }}</td>
+            <td>{{ item.remaining_kg }}</td>
+            <td>{{ item.note|default:"-" }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="8">Заявок нет.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

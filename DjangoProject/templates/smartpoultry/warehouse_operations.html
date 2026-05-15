@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Склад</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'warehouse_export_excel' %}">Excel склада</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'auto_feed_settings' %}">Настройки автосписания</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_type_list' %}">Типы корма</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_expense_list' %}">Расходы на корм</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'purchase_receipt' %}">Приход по заявке</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Автосписание работает после сохранения дневной записи: живое поголовье × норма фазы рациона.
+    Включение, порог автозаявки и фазы настраиваются в разделе “Настройки автосписания”.
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label">Период анализа</label>
+                <select class="form-select" name="period_days">
+                    <option value="7" {% if period_days == "7" %}selected{% endif %}>7 дней</option>
+                    <option value="30" {% if period_days == "30" %}selected{% endif %}>30 дней</option>
+                    <option value="90" {% if period_days == "90" %}selected{% endif %}>90 дней</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary" type="submit">Показать</button>
+            </div>
+            <div class="col-12 col-md-7">
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge text-bg-light border">Автосписание: {{ period_consumption_kg|floatformat:2 }} кг</span>
+                    <span class="badge text-bg-light border">Стоимость автосписания: {{ period_consumption_cost|floatformat:2 }} ₽</span>
+                    <span class="badge text-bg-light border">Ручные расходы: {{ period_manual_expense|floatformat:2 }} ₽</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Приход корма</h2>
+                {% if can_move %}
+                    <form method="post" class="d-grid gap-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="incoming">
+                        {% for field in incoming_form %}
+                            <div>
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button class="btn btn-primary" type="submit">Записать приход</button>
+                    </form>
+                {% else %}
+                    <p class="text-secondary mb-0">Нет прав на складовые операции.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h6 mb-3">Корректировка остатка</h2>
+                {% if can_move %}
+                    <form method="post" class="d-grid gap-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="adjust">
+                        {% for field in adjust_form %}
+                            <div>
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button class="btn btn-outline-primary" type="submit">Применить корректировку</button>
+                    </form>
+                {% else %}
+                    <p class="text-secondary mb-0">Нет прав на складовые операции.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Текущие остатки</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Корм</th>
+                <th>Остаток, кг</th>
+                <th>Обновлено</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for stock in feed_stocks %}
+                <tr>
+                    <td>{{ stock.feed_type.name }}</td>
+                    <td>{{ stock.quantity_kg|floatformat:2 }}</td>
+                    <td>{{ stock.updated_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" class="text-secondary">Остатков пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white"><strong>Последние движения (30)</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Корм</th>
+                <th>Тип</th>
+                <th>Количество, кг</th>
+                <th>Комментарий</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for movement in recent_movements %}
+                <tr>
+                    <td>{{ movement.movement_date|date:"d.m.Y" }}</td>
+                    <td>{{ movement.feed_type.name }}</td>
+                    <td>{{ movement.get_movement_type_display }}</td>
+                    <td>{{ movement.quantity_kg|floatformat:2 }}</td>
+                    <td>{{ movement.note|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-secondary">Движений пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

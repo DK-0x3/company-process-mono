@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Клиенты</h1>
+    <div class="d-flex gap-2">
+        {% if perms.smartpoultry.add_customer %}
+            <a class="btn btn-primary btn-sm" href="{% url 'customer_create' %}">Новый клиент</a>
+        {% endif %}
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'sales_list' %}">К продажам</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Клиенты используются в продажах для фиксации отгрузок и аналитики по выручке/дебиторке.
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Клиент</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Комментарий</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in customers %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.phone|default:"-" }}</td>
+                    <td>{{ item.email|default:"-" }}</td>
+                    <td>{{ item.note|default:"-" }}</td>
+                    <td class="text-end">
+                        {% if perms.smartpoultry.change_customer %}
+                            <a class="btn btn-outline-primary btn-sm" href="{% url 'customer_update' item.id %}">Изменить</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-secondary">Клиентов пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

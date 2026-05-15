@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Продажи и дебиторка</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary btn-sm" href="{% url 'sale_create' %}">Новая продажа</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'customer_list' %}">Клиенты</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'sales_export_pdf' %}">PDF продаж</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    Статусы продаж ведутся вручную. Вверху показываются незавершенные продажи для оперативной работы.
+    Сумма рассчитывается автоматически по категориям яйца и прайс-листу.
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Сумма продаж</div><div class="h5">{{ total_sales|floatformat:2 }}</div></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Оплачено</div><div class="h5">{{ total_paid|floatformat:2 }}</div></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="text-secondary">Дебиторка</div><div class="h5">{{ receivable|floatformat:2 }}</div></div></div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Незавершенные продажи</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Клиент</th>
+                <th>Сумма</th>
+                <th>Оплачено</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sale in active_sales %}
+                <tr>
+                    <td>{{ sale.sale_date|date:"d.m.Y" }}</td>
+                    <td>{{ sale.customer.name|default:"-" }}</td>
+                    <td>{{ sale.total_amount|floatformat:2 }}</td>
+                    <td>{{ sale.paid_amount|floatformat:2 }}</td>
+                    <td>{{ sale.get_status_display }}</td>
+                    <td class="text-end">
+                        {% if perms.smartpoultry.change_sale %}
+                            <form method="post" action="{% url 'sale_status_update' sale.id %}" class="d-inline-flex align-items-center gap-2">
+                                {% csrf_token %}
+                                <select class="form-select form-select-sm" name="status">
+                                    {% for value, label in status_choices %}
+                                        <option value="{{ value }}" {% if sale.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-primary btn-sm" type="submit">Обновить</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-secondary">Незавершенных продаж нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label">Статус</label>
+                <select name="status" class="form-select">
+                    <option value="">Все</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label">С даты</label>
+                <input type="date" class="form-control" name="date_from" value="{{ filters.date_from }}">
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label">По дату</label>
+                <input type="date" class="form-control" name="date_to" value="{{ filters.date_to }}">
+            </div>
+            <div class="col-12 col-md-3 d-grid">
+                <button class="btn btn-primary" type="submit">Применить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Дата</th>
+                <th>Клиент</th>
+                <th>C0</th>
+                <th>C1</th>
+                <th>C2</th>
+                <th>Сумма</th>
+                <th>Оплачено</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.sale_date|date:"d.m.Y" }}</td>
+                    <td>{{ sale.customer.name|default:"-" }}</td>
+                    <td>{{ sale.c0_qty }}</td>
+                    <td>{{ sale.c1_qty }}</td>
+                    <td>{{ sale.c2_qty }}</td>
+                    <td>{{ sale.total_amount|floatformat:2 }}</td>
+                    <td>{{ sale.paid_amount|floatformat:2 }}</td>
+                    <td>{{ sale.get_status_display }}</td>
+                    <td class="text-end">
+                        {% if perms.smartpoultry.change_sale %}
+                            <form method="post" action="{% url 'sale_status_update' sale.id %}" class="d-inline-flex align-items-center gap-2">
+                                {% csrf_token %}
+                                <select class="form-select form-select-sm" name="status">
+                                    {% for value, label in status_choices %}
+                                        <option value="{{ value }}" {% if sale.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-primary btn-sm" type="submit">ОК</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="9" class="text-secondary">Продаж пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

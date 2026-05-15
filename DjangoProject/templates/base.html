@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartPoultry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --header-offset: 64px; }
+        body { background-color: #f4f6fb; }
+        .navbar-brand { font-weight: 700; letter-spacing: 0; }
+        .navbar { position: sticky; top: 0; z-index: 1030; }
+        .page-container { max-width: none; width: 100%; }
+        .card-kpi .kpi-value { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
+        .card-kpi .kpi-label { color: #64748b; font-size: 0.9rem; }
+        .perm-grid { max-height: 420px; overflow-y: auto; }
+        .app-layout { display: grid; grid-template-columns: 250px 1fr; gap: 1rem; align-items: start; }
+        .sidebar { position: sticky; top: calc(var(--header-offset) + 1rem); }
+        .sidebar .nav-link { color: #334155; border-radius: 6px; padding: .45rem .6rem; }
+        .sidebar .nav-link.active { background: #e2e8f0; color: #0f172a; font-weight: 600; }
+        .module-nav .nav-link { color: rgba(255,255,255,.85); }
+        .module-nav .nav-link.active { color: #fff; font-weight: 600; border-bottom: 2px solid #fff; }
+        @media (max-width: 992px) {
+            .app-layout { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary-subtle">
+    <div class="container-fluid page-container">
+        <a class="navbar-brand me-3" href="{% url 'dashboard' %}">SmartPoultry</a>
+        {% if user.is_authenticated %}
+            {% with route=request.resolver_match.url_name %}
+            <ul class="navbar-nav module-nav me-auto align-items-center gap-2">
+                {% if ui_perms.can_dashboard or ui_perms.can_daily_record or ui_perms.can_egg %}
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' %}active{% endif %}" href="{% url 'dashboard' %}">Дашборд</a></li>
+                {% endif %}
+                {% if ui_perms.can_warehouse %}
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'warehouse_operations' or route == 'purchase_request_list' or route == 'purchase_request_create' or route == 'purchase_receipt' or route == 'feed_type_list' or route == 'feed_type_create' or route == 'feed_type_update' or route == 'feed_expense_list' or route == 'feed_expense_create' or route == 'feed_expense_update' or route == 'auto_feed_settings' or route == 'ration_phase_create' or route == 'ration_phase_update' %}active{% endif %}" href="{% url 'warehouse_operations' %}">Склад</a></li>
+                {% endif %}
+                {% if ui_perms.can_sales or ui_perms.can_customers %}
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'sales_list' or route == 'sale_create' or route == 'customer_list' or route == 'customer_create' or route == 'customer_update' %}active{% endif %}" href="{% url 'sales_list' %}">Продажи</a></li>
+                {% endif %}
+                {% if ui_perms.can_incidents %}
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'incidents_list' or route == 'incident_capa_update' or route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incidents_list' %}">Инциденты</a></li>
+                {% endif %}
+                {% if ui_perms.can_admin %}
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'automation_settings' %}active{% endif %}" href="{% url 'manager_list' %}">Администрирование</a></li>
+                {% endif %}
+            </ul>
+            {% endwith %}
+            <ul class="navbar-nav align-items-center gap-2">
+                <li class="nav-item text-light small">{{ user.username }}</li>
+                <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">Выход</a></li>
+            </ul>
+        {% endif %}
+    </div>
+</nav>
+
+<main class="container-fluid page-container py-4 px-3 px-lg-4">
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div class="alert alert-info py-2 mb-2">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if user.is_authenticated %}
+        {% with route=request.resolver_match.url_name %}
+            <div class="app-layout">
+                <aside class="sidebar">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="text-secondary small mb-2">Раздел</div>
+                            <nav class="nav flex-column gap-1">
+                                {% if route == 'warehouse_operations' or route == 'purchase_request_list' or route == 'purchase_request_create' or route == 'purchase_receipt' or route == 'feed_type_list' or route == 'feed_type_create' or route == 'feed_type_update' or route == 'feed_expense_list' or route == 'feed_expense_create' or route == 'feed_expense_update' or route == 'auto_feed_settings' or route == 'ration_phase_create' or route == 'ration_phase_update' %}
+                                    {% if ui_perms.can_warehouse %}
+                                        <a class="nav-link {% if route == 'warehouse_operations' %}active{% endif %}" href="{% url 'warehouse_operations' %}">Склад</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_purchase_requests %}
+                                        <a class="nav-link {% if route == 'purchase_request_list' or route == 'purchase_request_create' %}active{% endif %}" href="{% url 'purchase_request_list' %}">Заявки закупки</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_purchase_receipt %}
+                                        <a class="nav-link {% if route == 'purchase_receipt' %}active{% endif %}" href="{% url 'purchase_receipt' %}">Приход по заявке</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_auto_feed_settings %}
+                                        <a class="nav-link {% if route == 'auto_feed_settings' or route == 'ration_phase_create' or route == 'ration_phase_update' %}active{% endif %}" href="{% url 'auto_feed_settings' %}">Настройки автосписания</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_feed_types %}
+                                        <a class="nav-link {% if route == 'feed_type_list' or route == 'feed_type_create' or route == 'feed_type_update' %}active{% endif %}" href="{% url 'feed_type_list' %}">Типы корма</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_feed_expenses %}
+                                        <a class="nav-link {% if route == 'feed_expense_list' or route == 'feed_expense_create' or route == 'feed_expense_update' %}active{% endif %}" href="{% url 'feed_expense_list' %}">Расходы на корм</a>
+                                    {% endif %}
+                                {% elif route == 'sales_list' or route == 'sale_create' or route == 'customer_list' or route == 'customer_create' or route == 'customer_update' %}
+                                    {% if ui_perms.can_sales %}
+                                        <a class="nav-link {% if route == 'sales_list' %}active{% endif %}" href="{% url 'sales_list' %}">Список продаж</a>
+                                        <a class="nav-link {% if route == 'sale_create' %}active{% endif %}" href="{% url 'sale_create' %}">Новая продажа</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_customers %}
+                                        <a class="nav-link {% if route == 'customer_list' or route == 'customer_create' or route == 'customer_update' %}active{% endif %}" href="{% url 'customer_list' %}">Клиенты</a>
+                                    {% endif %}
+                                {% elif route == 'incidents_list' or route == 'incident_capa_update' or route == 'incident_cause_list' or route == 'incident_cause_create' %}
+                                    {% if ui_perms.can_incidents %}
+                                        <a class="nav-link {% if route == 'incidents_list' %}active{% endif %}" href="{% url 'incidents_list' %}">Инциденты</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_incident_causes %}
+                                        <a class="nav-link {% if route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incident_cause_list' %}">Причины инцидентов</a>
+                                    {% endif %}
+                                {% elif route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'automation_settings' %}
+                                    {% if ui_perms.can_managers %}
+                                        <a class="nav-link {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' %}active{% endif %}" href="{% url 'manager_list' %}">Менеджеры</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_houses %}
+                                        <a class="nav-link {% if route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' %}active{% endif %}" href="{% url 'poultry_house_list' %}">Корпуса</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_automation_settings %}
+                                        <a class="nav-link {% if route == 'automation_settings' %}active{% endif %}" href="{% url 'automation_settings' %}">Настройки автоматизации</a>
+                                    {% endif %}
+                                {% elif route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' %}
+                                    {% if ui_perms.can_dashboard %}
+                                        <a class="nav-link {% if route == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Операционный дашборд</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_kpi %}
+                                        <a class="nav-link {% if route == 'kpi_dashboard' %}active{% endif %}" href="{% url 'kpi_dashboard' %}">KPI руководителя</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_egg %}
+                                        <a class="nav-link {% if route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' %}active{% endif %}" href="{% url 'egg_dashboard' %}">Яйценоскость</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_daily_record %}
+                                        <a class="nav-link {% if route == 'daily_record_create' %}active{% endif %}" href="{% url 'daily_record_create' %}">Новая дневная запись</a>
+                                    {% endif %}
+                                {% else %}
+                                    {% if ui_perms.can_dashboard %}
+                                        <a class="nav-link active" href="{% url 'dashboard' %}">Дашборд</a>
+                                    {% endif %}
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </aside>
+                <section>
+        {% endwith %}
+    {% endif %}
+    {% block content %}{% endblock %}
+    {% if user.is_authenticated %}
+                </section>
+            </div>
+    {% endif %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

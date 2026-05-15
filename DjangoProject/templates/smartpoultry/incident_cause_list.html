@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Справочник причин инцидентов</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary btn-sm" href="{% url 'incident_cause_create' %}">Новая причина</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'incidents_list' %}">К инцидентам</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Причина</th>
+                <th>Комментарий</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for cause in causes %}
+                <tr>
+                    <td>{{ cause.name }}</td>
+                    <td>{{ cause.note|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="2" class="text-secondary">Причин пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

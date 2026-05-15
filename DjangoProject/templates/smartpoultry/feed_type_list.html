@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Типы корма</h1>
+    <div class="d-flex gap-2">
+        {% if perms.smartpoultry.add_feedtype %}
+            <a class="btn btn-primary btn-sm" href="{% url 'feed_type_create' %}">Новый тип</a>
+        {% endif %}
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Название</th>
+                <th>Себестоимость, ₽/кг</th>
+                <th>Активен</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for feed_type in feed_types %}
+                <tr>
+                    <td>{{ feed_type.name }}</td>
+                    <td>{{ feed_type.cost_per_kg|floatformat:2 }}</td>
+                    <td>{% if feed_type.is_active %}Да{% else %}Нет{% endif %}</td>
+                    <td class="text-end">
+                        {% if perms.smartpoultry.change_feedtype %}
+                            <a class="btn btn-outline-primary btn-sm" href="{% url 'feed_type_update' feed_type.id %}">Изменить</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="text-secondary">Типов корма пока нет.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

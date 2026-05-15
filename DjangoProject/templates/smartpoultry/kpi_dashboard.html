@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">KPI руководителя</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'kpi_export_pdf' %}">PDF KPI</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">На дашборд</a>
+    </div>
+</div>
+
+<div class="alert alert-light border mb-3 small">
+    KPI считается за период 14 дней. Источники: дневные записи, автосписание/склад и финансовые снимки дня.
+    Формулы: эффективность = яйца / живое поголовье × 100; маржа = выручка по яйцу − расход на корм.
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Период: {{ period_start }} — {{ today }}</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Корпус</th>
+                <th>Эффективность, %</th>
+                <th>Бой, %</th>
+                <th>Корм/гол/день, г</th>
+                <th>Выручка по яйцу, ₽</th>
+                <th>Расход на корм, ₽</th>
+                <th>Маржа, ₽</th>
+                <th>Дней с данными</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in kpi_rows %}
+                <tr>
+                    <td>{{ row.house_name }}</td>
+                    <td>{{ row.avg_eff|floatformat:2 }}</td>
+                    <td>{{ row.avg_break|floatformat:2 }}</td>
+                    <td>{{ row.feed_per_head_g|floatformat:2 }}</td>
+                    <td>{{ row.revenue_total|floatformat:2 }}</td>
+                    <td>{{ row.feed_cost_total|floatformat:2 }}</td>
+                    <td>{{ row.margin|floatformat:2 }}</td>
+                    <td>{{ row.record_count }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-secondary">Нет данных по корпусам за выбранный период.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Тренд выручки по яйцу (14 дней)</strong></div>
+            <div class="card-body"><canvas id="kpiSalesChart" height="120"></canvas></div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Тренд валовой прибыли (14 дней)</strong></div>
+            <div class="card-body"><canvas id="kpiDebtChart" height="120"></canvas></div>
+        </div>
+    </div>
+</div>
+
+{{ labels|json_script:"kpi-labels" }}
+{{ revenue_trend|json_script:"kpi-sales" }}
+{{ margin_trend|json_script:"kpi-debt" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const labels = JSON.parse(document.getElementById("kpi-labels").textContent);
+    const sales = JSON.parse(document.getElementById("kpi-sales").textContent);
+    const debt = JSON.parse(document.getElementById("kpi-debt").textContent);
+    new Chart(document.getElementById("kpiSalesChart"), {
+        type: "bar",
+        data: { labels, datasets: [{ label: "Выручка", data: sales, backgroundColor: "#2563eb" }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+    new Chart(document.getElementById("kpiDebtChart"), {
+        type: "line",
+        data: { labels, datasets: [{ label: "Валовая прибыль", data: debt, borderColor: "#16a34a", tension: 0.3 }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>
+{% endblock %}
