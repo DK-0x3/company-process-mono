@@ -8,12 +8,13 @@ import { PrismaService } from '../prisma.service';
 import { OwnerOnlyGuard } from './owner-only.guard';
 import { EmployeeOnlyGuard } from './employee-only.guard';
 import { WorkspacePermissionGuard } from './workspace-permission.guard';
+import { getJwtSecret } from './jwt.config';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: 'super-secret-key', // вынести в .env на проде
+      secret: getJwtSecret(),
       signOptions: { expiresIn: '7d' },
     }),
   ],
