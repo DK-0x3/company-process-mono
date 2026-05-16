@@ -56,15 +56,10 @@ services:
     volumes:
       - django_runtime:/app/runtime
       - django_reports:/app/generated_reports
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn DjangoProject.wsgi:application
-             --bind 0.0.0.0:8000
-             --workers ${DJANGO_GUNICORN_WORKERS:-3}
-             --timeout 120
-             --access-logfile -
-             --error-logfile -"
+    command:
+      - sh
+      - -c
+      - python manage.py migrate && python manage.py collectstatic --noinput && exec gunicorn DjangoProject.wsgi:application --bind 0.0.0.0:8000 --workers ${DJANGO_GUNICORN_WORKERS:-3} --timeout 120 --access-logfile - --error-logfile -
     expose:
       - "8000"
 
