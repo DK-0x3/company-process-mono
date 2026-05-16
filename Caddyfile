@@ -3,7 +3,7 @@
   reverse_proxy frontend:80
 }
 
-django.kezarev.ru {
+{$DJANGO_DOMAIN:django.localhost} {
   encode zstd gzip
-  reverse_proxy host.docker.internal:8001
+  reverse_proxy django:8000
 }

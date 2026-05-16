@@ -43,15 +43,40 @@ services:
     expose:
       - "80"
 
+  django:
+    build:
+      context: ./DjangoProject
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?DJANGO_SECRET_KEY is required}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost}
+      SQLITE_PATH: /app/runtime/db.sqlite3
+    volumes:
+      - django_runtime:/app/runtime
+      - django_reports:/app/generated_reports
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn DjangoProject.wsgi:application
+             --bind 0.0.0.0:8000
+             --workers ${DJANGO_GUNICORN_WORKERS:-3}
+             --timeout 120
+             --access-logfile -
+             --error-logfile -"
+    expose:
+      - "8000"
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
       APP_DOMAIN: ${APP_DOMAIN:-:80}
+      DJANGO_DOMAIN: ${DJANGO_DOMAIN:-django.localhost}
     depends_on:
       - frontend
+      - django
     ports:
       - "80:80"
       - "443:443"
@@ -62,5 +87,7 @@ services:
 
 volumes:
   postgres_data:
+  django_runtime:
+  django_reports:
   caddy_data:
   caddy_config:

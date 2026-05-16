@@ -1,86 +1,36 @@
-# Docker deploy
+# Unified Docker deploy (Company Process + Django)
 
-Проект запускается как набор контейнеров:
+Этот репозиторий разворачивает два проекта в одном `docker compose`:
 
-- `postgres` - PostgreSQL 16, данные хранятся в Docker volume `postgres_data`.
-- `backend` - NestJS API. При старте выполняет `prisma migrate deploy`, затем запускает `node dist/main`.
-- `frontend` - собранный Vite SPA, отдается через Nginx. Nginx также проксирует `/api` в backend.
-- `caddy` - внешний reverse proxy. Локально может работать по HTTP, на VDS с доменом автоматически выпускает HTTPS-сертификат.
+- `company-process` (frontend + backend + postgres)
+- `DjangoProject` (gunicorn + sqlite)
+- `caddy` как единая точка входа на `80/443`
 
-## Локальный запуск
+## Сервисы
 
-```bash
-cp .env.example .env
-# поменяйте POSTGRES_PASSWORD и JWT_SECRET в .env
-docker compose up -d --build
-```
+- `postgres` — база для Nest backend.
+- `backend` — NestJS API, при старте делает `prisma migrate deploy`.
+- `frontend` — Nginx со статикой Vite и proxy `/api` в backend.
+- `django` — Django + gunicorn (sqlite в volume).
+- `caddy` — reverse proxy и TLS.
 
-После запуска:
+## Входные домены
 
-- приложение: http://localhost
-- Swagger: http://localhost/api/docs
-- логи backend: `docker compose logs -f backend`
-- логи всех сервисов: `docker compose logs -f`
+- `${APP_DOMAIN}` -> `frontend`
+- `${DJANGO_DOMAIN}` -> `django`
 
-Остановить контейнеры:
+Пример:
 
-```bash
-docker compose down
-```
+- `app.example.com` -> company process
+- `django.example.com` -> Django
 
-Остановить и удалить базу данных:
-
-```bash
-docker compose down -v
-```
-
-## Настройка `.env`
-
-Для локального запуска:
-
-```env
-APP_DOMAIN=:80
-CORS_ORIGIN=http://localhost
-VITE_API_URL=/api
-POSTGRES_DB=company_process
-POSTGRES_USER=company_process
-POSTGRES_PASSWORD=strong-password
-JWT_SECRET=long-random-secret
-```
-
-Для VDS с доменом:
-
-```env
-APP_DOMAIN=example.com
-CORS_ORIGIN=https://example.com
-VITE_API_URL=/api
-POSTGRES_DB=company_process
-POSTGRES_USER=company_process
-POSTGRES_PASSWORD=strong-password
-JWT_SECRET=long-random-secret
-```
-
-`JWT_SECRET` должен быть длинной случайной строкой. Сгенерировать можно так:
-
-```bash
-openssl rand -base64 48
-```
-
-## Подготовка VDS Ubuntu
-
-Ниже пример для Ubuntu 22.04/24.04/26.04.
-
-1. Обновить систему и поставить базовые утилиты:
+## 1) Подготовка VDS Ubuntu (с нуля)
 
 ```bash
 sudo apt update
 sudo apt upgrade -y
 sudo apt install -y ca-certificates curl git ufw
-```
 
-2. Установить Docker из официального apt-репозитория:
-
-```bash
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -92,24 +42,19 @@ echo \
 
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
 
-3. Разрешить текущему пользователю запускать Docker без `sudo`:
-
-```bash
 sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-4. Проверить Docker:
+Проверка:
 
 ```bash
 docker --version
 docker compose version
-docker run --rm hello-world
 ```
 
-5. Настроить firewall. Для публичного сайта нужны только SSH, HTTP и HTTPS:
+Firewall:
 
 ```bash
 sudo ufw allow OpenSSH
@@ -119,83 +64,110 @@ sudo ufw enable
 sudo ufw status
 ```
 
-Важно: Docker публикует порты через свои iptables-правила. Не публикуйте порт PostgreSQL наружу в `docker-compose.yml`.
+## 2) DNS
 
-## Деплой на VDS
+Создайте A-записи на IP сервера:
 
-1. Склонировать проект:
+- `app.example.com`
+- `django.example.com`
+
+## 3) Клонирование проекта
 
 ```bash
 git clone <repo-url>
 cd company-process-mono
 ```
 
-2. Создать `.env`:
+## 4) Настройка `.env`
 
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-Для домена укажите:
+Минимум для production:
 
 ```env
-APP_DOMAIN=example.com
-CORS_ORIGIN=https://example.com
+APP_DOMAIN=app.example.com
+DJANGO_DOMAIN=django.example.com
+
+CORS_ORIGIN=https://app.example.com
+VITE_API_URL=/api
+
+POSTGRES_DB=company_process
+POSTGRES_USER=company_process
+POSTGRES_PASSWORD=strong-postgres-password
+JWT_SECRET=long-random-secret
+
+DJANGO_SECRET_KEY=long-random-secret
+DJANGO_DEBUG=0
+DJANGO_ALLOWED_HOSTS=django.example.com,127.0.0.1,localhost
+DJANGO_CSRF_TRUSTED_ORIGINS=https://django.example.com,http://127.0.0.1
+DJANGO_GUNICORN_WORKERS=3
 ```
 
-3. Убедиться, что DNS A-запись домена указывает на IP VDS.
+Генерация секретов:
 
-4. Запустить проект:
+```bash
+openssl rand -base64 48
+```
+
+## 5) Первый запуск
 
 ```bash
 docker compose up -d --build
 ```
 
-5. Проверить статус:
+Проверка:
 
 ```bash
 docker compose ps
+docker compose logs -f caddy
 docker compose logs -f backend
+docker compose logs -f django
 ```
 
-6. Открыть:
+## 6) Доступ
 
-```text
-https://example.com
-https://example.com/api/docs
-```
+- `https://app.example.com`
+- `https://app.example.com/api/docs`
+- `https://django.example.com`
 
-Caddy сам получит и обновит HTTPS-сертификат, если домен уже смотрит на сервер и порты `80/443` открыты.
-
-## Обновление после изменений
+## 7) Обновление после изменений
 
 ```bash
 git pull
 docker compose up -d --build
 ```
 
-Если изменились Prisma migrations, backend применит их автоматически командой `prisma migrate deploy` при старте.
-
-## Бэкап PostgreSQL
-
-Создать дамп:
+## 8) Остановка
 
 ```bash
-docker compose exec -T postgres pg_dump -U company_process company_process > backup.sql
+docker compose down
 ```
 
-Восстановить дамп в пустую базу:
+С удалением данных БД/SQLite volumes:
 
 ```bash
-cat backup.sql | docker compose exec -T postgres psql -U company_process company_process
+docker compose down -v
 ```
 
-Если вы меняли `POSTGRES_USER` или `POSTGRES_DB`, используйте свои значения.
+## 9) Бэкапы
 
-## Что не нужно делать на VDS
+Postgres (Nest backend):
 
-- Не ставьте Node.js, npm и PostgreSQL на хост для production-запуска. Они уже внутри контейнеров.
-- Не открывайте порт `5432` наружу.
-- Не коммитьте настоящий `.env`.
-- Не используйте `prisma migrate dev` на сервере. Для production нужен `prisma migrate deploy`.
+```bash
+docker compose exec -T postgres pg_dump -U company_process company_process > backup-postgres.sql
+```
+
+SQLite (Django):
+
+```bash
+docker compose exec -T django sh -lc 'cp /app/runtime/db.sqlite3 /tmp/db.sqlite3 && cat /tmp/db.sqlite3' > backup-django.sqlite3
+```
+
+## 10) Важные замечания
+
+- Не открывайте наружу порты `5432`, `8000`, `8001` и т.д. Снаружи нужны только `80/443`.
+- Не запускайте Django на хосте через `systemd`, если используете этот unified compose.
+- Не коммитьте реальный `.env`.
