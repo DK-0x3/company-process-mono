@@ -1,5 +1,9 @@
 # Unified Docker deploy (Company Process + Django)
 
+Подробный пошаговый runbook с troubleshooting:
+
+- [VDS_DEPLOY_RUNBOOK.md](VDS_DEPLOY_RUNBOOK.md)
+
 Этот репозиторий разворачивает два проекта в одном `docker compose`:
 
 - `company-process` (frontend + backend + postgres)

@@ -243,7 +243,7 @@ class OwnerRegistrationForm(BootstrapFormMixin, UserCreationForm):
         return user
 
 
-class SetupFlockForm(BootstrapFormMixin, forms.ModelForm):
+class FlockForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Flock
         fields = [
@@ -267,7 +267,13 @@ class SetupFlockForm(BootstrapFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["house"].queryset = PoultryHouse.objects.filter(is_active=True).order_by("name")
+        self.fields["house"].required = False
         self._apply_bootstrap()
+
+
+class SetupFlockForm(FlockForm):
+    pass
 
 
 class SetupFeedStockForm(BootstrapFormMixin, forms.Form):

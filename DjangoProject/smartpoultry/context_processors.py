@@ -52,6 +52,7 @@ def ui_permissions(request):
         "can_admin": is_owner,
         "can_managers": is_owner,
         "can_houses": is_owner or has("smartpoultry.view_poultryhouse"),
+        "can_flocks": is_owner or has("smartpoultry.view_flock"),
         "can_automation_settings": is_owner
         or has("smartpoultry.view_automationsettings")
         or has("smartpoultry.change_automationsettings"),

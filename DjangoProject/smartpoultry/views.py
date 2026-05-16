@@ -36,6 +36,7 @@ from .forms import (
     FeedAdjustForm,
     FeedIncomingForm,
     FeedTypeForm,
+    FlockForm,
     IncidentCapaForm,
     IncidentCauseForm,
     ManagerCreateForm,
@@ -645,6 +646,45 @@ def poultry_house_list(request):
         return HttpResponseForbidden("Недостаточно прав для просмотра корпусов.")
     houses = PoultryHouse.objects.select_related("responsible_manager").order_by("name")
     return render(request, "smartpoultry/poultry_house_list.html", {"houses": houses})
+
+
+@login_required
+def flock_list(request):
+    if not request.user.has_perm("smartpoultry.view_flock"):
+        return HttpResponseForbidden("Недостаточно прав для просмотра стад.")
+    flocks = Flock.objects.select_related("house").order_by("-is_active", "name")
+    return render(request, "smartpoultry/flock_list.html", {"flocks": flocks})
+
+
+@login_required
+def flock_create(request):
+    if not request.user.has_perm("smartpoultry.add_flock"):
+        return HttpResponseForbidden("Недостаточно прав для создания стада.")
+    if request.method == "POST":
+        form = FlockForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Стадо создано.")
+            return redirect("flock_list")
+    else:
+        form = FlockForm()
+    return render(request, "smartpoultry/flock_form.html", {"form": form})
+
+
+@login_required
+def flock_update(request, flock_id):
+    if not request.user.has_perm("smartpoultry.change_flock"):
+        return HttpResponseForbidden("Недостаточно прав для редактирования стада.")
+    flock = get_object_or_404(Flock, id=flock_id)
+    if request.method == "POST":
+        form = FlockForm(request.POST, instance=flock)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Стадо обновлено.")
+            return redirect("flock_list")
+    else:
+        form = FlockForm(instance=flock)
+    return render(request, "smartpoultry/flock_form.html", {"form": form, "flock": flock})
 
 
 @login_required

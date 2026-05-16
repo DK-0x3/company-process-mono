@@ -47,7 +47,7 @@
                     <li class="nav-item"><a class="nav-link py-1 {% if route == 'incidents_list' or route == 'incident_capa_update' or route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incidents_list' %}">Инциденты</a></li>
                 {% endif %}
                 {% if ui_perms.can_admin %}
-                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'automation_settings' %}active{% endif %}" href="{% url 'manager_list' %}">Администрирование</a></li>
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'automation_settings' %}active{% endif %}" href="{% url 'manager_list' %}">Администрирование</a></li>
                 {% endif %}
             </ul>
             {% endwith %}
@@ -109,12 +109,15 @@
                                     {% if ui_perms.can_incident_causes %}
                                         <a class="nav-link {% if route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incident_cause_list' %}">Причины инцидентов</a>
                                     {% endif %}
-                                {% elif route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'automation_settings' %}
+                                {% elif route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'automation_settings' %}
                                     {% if ui_perms.can_managers %}
                                         <a class="nav-link {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' %}active{% endif %}" href="{% url 'manager_list' %}">Менеджеры</a>
                                     {% endif %}
                                     {% if ui_perms.can_houses %}
                                         <a class="nav-link {% if route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' %}active{% endif %}" href="{% url 'poultry_house_list' %}">Корпуса</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_flocks %}
+                                        <a class="nav-link {% if route == 'flock_list' or route == 'flock_create' or route == 'flock_update' %}active{% endif %}" href="{% url 'flock_list' %}">Стада</a>
                                     {% endif %}
                                     {% if ui_perms.can_automation_settings %}
                                         <a class="nav-link {% if route == 'automation_settings' %}active{% endif %}" href="{% url 'automation_settings' %}">Настройки автоматизации</a>
