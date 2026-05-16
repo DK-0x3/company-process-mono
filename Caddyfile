@@ -1,9 +1,13 @@
-{$APP_DOMAIN::80} {
+{
+  auto_https disable_redirects
+}
+
+http://{$APP_DOMAIN:localhost}, https://{$APP_DOMAIN:localhost} {
   encode zstd gzip
   reverse_proxy frontend:80
 }
 
-{$DJANGO_DOMAIN:django.localhost} {
+http://{$DJANGO_DOMAIN:django.localhost}, https://{$DJANGO_DOMAIN:django.localhost} {
   encode zstd gzip
   reverse_proxy django:8000
 }

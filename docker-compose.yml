@@ -24,7 +24,7 @@ services:
       NODE_ENV: production
       PORT: 8000
       DATABASE_URL: postgresql://${POSTGRES_USER:-company_process}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-company_process}?schema=public
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost,https://localhost}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     depends_on:
       postgres:
@@ -72,7 +72,7 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
-      APP_DOMAIN: ${APP_DOMAIN:-:80}
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
       DJANGO_DOMAIN: ${DJANGO_DOMAIN:-django.localhost}
     depends_on:
       - frontend
