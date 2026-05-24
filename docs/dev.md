@@ -8,6 +8,17 @@ npx prisma migrate dev
 npm run prisma:seed
 ```
 
+```bash
+# Большой объем связных тестовых данных (backend)
+# Параметры: BULK_SCALE=3..10, BULK_RUN_TAG=любая_метка
+BULK_SCALE=4 BULK_RUN_TAG=demo1 npm run prisma:seed:bulk
+```
+
+```bash
+# То же самое в docker-compose окружении
+docker compose run --rm --no-deps backend sh -lc "npm ci --include=dev && BULK_SCALE=4 BULK_RUN_TAG=demo1 npm run prisma:seed:bulk"
+```
+
 ```angular2html
 npm run start
 ```
