@@ -19,6 +19,16 @@ BULK_SCALE=4 BULK_RUN_TAG=demo1 npm run prisma:seed:bulk
 docker compose run --rm --no-deps backend sh -lc "npm ci --include=dev && BULK_SCALE=4 BULK_RUN_TAG=demo1 npm run prisma:seed:bulk"
 ```
 
+```bash
+# Реалистичные данные для компании (много связных сущностей)
+# BULK_SCALE влияет на объем (3-10 обычно достаточно)
+docker compose run --rm --no-deps backend sh -lc "npm ci --include=dev && BULK_SCALE=6 BULK_OWNER_LOGIN=admin BULK_OWNER_EMAIL=admin@mail.com BULK_DEFAULT_PASSWORD=123456 npm run prisma:seed:bulk"
+```
+
+```bash
+# Важно: этот сидер очищает данные owner (admin) и создает новый реалистичный демо-набор
+```
+
 ```angular2html
 npm run start
 ```
