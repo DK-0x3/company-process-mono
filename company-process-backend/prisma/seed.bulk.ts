@@ -651,7 +651,7 @@ function buildMaterialContent(params: {
     )
     .join('\n\n');
 
-  const checklistBlock = article.checklist.map((item) => `- [ ] ${item}`).join('\n');
+  const checklistBlock = article.checklist.map((item) => `- ${item}`).join('\n');
   const linksBlock = article.links.map((link) => `- ${link}`).join('\n');
 
   return `# ${article.title}
