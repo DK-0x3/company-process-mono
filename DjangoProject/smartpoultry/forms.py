@@ -10,6 +10,7 @@ from .models import (
     AutomationSettings,
     Customer,
     DailyProductionRecord,
+    EggCollectionMachine,
     EggProductionStandard,
     FeedExpense,
     FeedStock,
@@ -59,6 +60,7 @@ class PermissionMultipleChoiceField(forms.ModelMultipleChoiceField):
         "flock": "Стадо",
         "eggproductionstandard": "Эталон яйценоскости",
         "dailyproductionrecord": "Дневная запись",
+        "eggcollectionmachine": "Машина сбора яиц",
         "alert": "Инцидент",
         "feedtype": "Тип корма",
         "feedstock": "Остаток корма",
@@ -116,12 +118,14 @@ def _manager_permission_queryset():
 class DailyProductionRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["machine"].queryset = EggCollectionMachine.objects.filter(is_active=True).order_by("name")
         BootstrapFormMixin._apply_bootstrap(self)
 
     class Meta:
         model = DailyProductionRecord
         fields = [
             "flock",
+            "machine",
             "record_date",
             "c0_count",
             "c1_count",
@@ -132,6 +136,7 @@ class DailyProductionRecordForm(forms.ModelForm):
         ]
         labels = {
             "flock": "Стадо",
+            "machine": "Машина (заглушка интеграции)",
             "record_date": "Дата записи",
             "c0_count": "Яйца C0, шт",
             "c1_count": "Яйца C1, шт",
@@ -140,6 +145,22 @@ class DailyProductionRecordForm(forms.ModelForm):
             "chipped_count": "Насечка, шт",
             "mortality_count": "Падеж, шт",
         }
+
+
+class EggCollectionMachineForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = EggCollectionMachine
+        fields = ["name", "serial_number", "is_active", "note"]
+        labels = {
+            "name": "Название машины",
+            "serial_number": "Номер/серийник",
+            "is_active": "Активна",
+            "note": "Комментарий",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
 
 
 class ManagerCreateForm(BootstrapFormMixin, forms.ModelForm):

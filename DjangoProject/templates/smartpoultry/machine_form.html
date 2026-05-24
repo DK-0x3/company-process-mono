@@ -5,14 +5,11 @@
     <div class="col-12 col-lg-8">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h4 mb-3">{{ form_title|default:"Новая дневная запись" }}</h1>
+                <h1 class="h4 mb-3">
+                    {% if machine %}Редактирование машины{% else %}Новая машина{% endif %}
+                </h1>
                 <form method="post" class="d-grid gap-3">
                     {% csrf_token %}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-warning py-2 mb-0">
-                            {{ form.non_field_errors }}
-                        </div>
-                    {% endif %}
                     {% for field in form %}
                         <div>
                             <label class="form-label">{{ field.label }}</label>
@@ -23,7 +20,7 @@
                         </div>
                     {% endfor %}
                     <div class="d-flex gap-2">
-                        <a class="btn btn-outline-secondary" href="{% url cancel_url_name %}">Отмена</a>
+                        <a class="btn btn-outline-secondary" href="{% url 'machine_list' %}">Отмена</a>
                         <button class="btn btn-primary" type="submit">Сохранить</button>
                     </div>
                 </form>

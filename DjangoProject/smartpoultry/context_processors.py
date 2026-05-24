@@ -11,7 +11,9 @@ def ui_permissions(request):
     data = {
         "is_owner": is_owner,
         "can_dashboard": has("smartpoultry.view_dashboard"),
-        "can_daily_record": has("smartpoultry.add_dailyproductionrecord"),
+        "can_daily_record": has("smartpoultry.add_dailyproductionrecord")
+        or has("smartpoultry.view_dailyproductionrecord")
+        or has("smartpoultry.change_dailyproductionrecord"),
         "can_egg": has("smartpoultry.view_dashboard")
         or has("smartpoultry.view_eggproductionstandard")
         or has("smartpoultry.add_eggproductionstandard")
@@ -53,6 +55,10 @@ def ui_permissions(request):
         "can_managers": is_owner,
         "can_houses": is_owner or has("smartpoultry.view_poultryhouse"),
         "can_flocks": is_owner or has("smartpoultry.view_flock"),
+        "can_machines": is_owner
+        or has("smartpoultry.view_eggcollectionmachine")
+        or has("smartpoultry.add_eggcollectionmachine")
+        or has("smartpoultry.change_eggcollectionmachine"),
         "can_automation_settings": is_owner
         or has("smartpoultry.view_automationsettings")
         or has("smartpoultry.change_automationsettings"),

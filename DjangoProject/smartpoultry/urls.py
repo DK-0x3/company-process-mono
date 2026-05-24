@@ -14,6 +14,8 @@ urlpatterns = [
     path("register-owner/", views.owner_register, name="owner_register"),
     path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
     path("records/new/", views.daily_record_create, name="daily_record_create"),
+    path("records/", views.daily_record_list, name="daily_record_list"),
+    path("records/<int:record_id>/edit/", views.daily_record_update, name="daily_record_update"),
     path("flocks/", views.flock_list, name="flock_list"),
     path("flocks/new/", views.flock_create, name="flock_create"),
     path("flocks/<int:flock_id>/edit/", views.flock_update, name="flock_update"),
@@ -86,4 +88,7 @@ urlpatterns = [
     path("managers/", views.manager_list, name="manager_list"),
     path("managers/new/", views.manager_create, name="manager_create"),
     path("managers/<int:user_id>/edit/", views.manager_update, name="manager_update"),
+    path("machines/", views.machine_list, name="machine_list"),
+    path("machines/new/", views.machine_create, name="machine_create"),
+    path("machines/<int:machine_id>/edit/", views.machine_update, name="machine_update"),
 ]

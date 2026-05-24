@@ -14,6 +14,7 @@ from .models import (
     Customer,
     DailyFinanceSnapshot,
     DailyProductionRecord,
+    EggCollectionMachine,
     EggPrice,
     EggProductionStandard,
     FeedStock,
@@ -722,3 +723,146 @@ class FeedManagementAndHouseLinksTests(BaseDataMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Яйценоскость по корпусам и стадам")
         self.assertContains(response, "82")
+
+
+class DailyRecordsWorkflowTests(BaseDataMixin, TestCase):
+    def setUp(self):
+        self.manager = self.create_manager()
+        self.flock = self.create_base_flock()
+        self.machine = EggCollectionMachine.objects.create(
+            name="Линия 1",
+            serial_number="EGG-TST-001",
+            is_active=True,
+        )
+        self.record_date = timezone.localdate()
+        self.record = DailyProductionRecord.objects.create(
+            flock=self.flock,
+            machine=self.machine,
+            record_date=self.record_date,
+            c0_count=100,
+            c1_count=90,
+            c2_count=80,
+            broken_count=2,
+            chipped_count=1,
+            mortality_count=0,
+        )
+
+    def test_daily_record_list_and_duplicate_redirect_to_edit(self):
+        grant_permissions(
+            self.manager,
+            [
+                "add_dailyproductionrecord",
+                "view_dailyproductionrecord",
+                "change_dailyproductionrecord",
+            ],
+        )
+        self.client.login(username="manager", password="Manager123!")
+
+        list_response = self.client.get(reverse("daily_record_list"))
+        self.assertEqual(list_response.status_code, 200)
+        self.assertContains(list_response, self.flock.name)
+
+        duplicate_response = self.client.post(
+            reverse("daily_record_create"),
+            {
+                "flock": self.flock.id,
+                "machine": self.machine.id,
+                "record_date": self.record_date.isoformat(),
+                "c0_count": 120,
+                "c1_count": 100,
+                "c2_count": 90,
+                "broken_count": 1,
+                "chipped_count": 0,
+                "mortality_count": 0,
+            },
+            follow=True,
+        )
+        self.assertEqual(duplicate_response.status_code, 200)
+        self.assertContains(duplicate_response, "Редактирование дневной записи")
+
+    def test_daily_record_update_changes_existing_record(self):
+        grant_permissions(
+            self.manager,
+            [
+                "view_dailyproductionrecord",
+                "change_dailyproductionrecord",
+            ],
+        )
+        self.client.login(username="manager", password="Manager123!")
+
+        response = self.client.post(
+            reverse("daily_record_update", kwargs={"record_id": self.record.id}),
+            {
+                "flock": self.flock.id,
+                "machine": self.machine.id,
+                "record_date": self.record_date.isoformat(),
+                "c0_count": 140,
+                "c1_count": 130,
+                "c2_count": 120,
+                "broken_count": 3,
+                "chipped_count": 1,
+                "mortality_count": 1,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.record.refresh_from_db()
+        self.assertEqual(self.record.c0_count, 140)
+        self.assertEqual(self.record.machine_id, self.machine.id)
+
+
+class MachinesStubIntegrationTests(BaseDataMixin, TestCase):
+    def setUp(self):
+        self.owner = self.create_owner()
+        self.manager = self.create_manager()
+
+    def test_machine_pages_and_daily_record_binding(self):
+        grant_permissions(
+            self.manager,
+            [
+                "view_eggcollectionmachine",
+                "add_eggcollectionmachine",
+                "change_eggcollectionmachine",
+                "add_dailyproductionrecord",
+                "view_dailyproductionrecord",
+                "change_dailyproductionrecord",
+            ],
+        )
+        flock = self.create_base_flock()
+        self.client.login(username="manager", password="Manager123!")
+
+        create_machine = self.client.post(
+            reverse("machine_create"),
+            {
+                "name": "Линия 7",
+                "serial_number": "EGG-007",
+                "is_active": "on",
+                "note": "Тестовая заглушка",
+            },
+            follow=True,
+        )
+        self.assertEqual(create_machine.status_code, 200)
+        machine = EggCollectionMachine.objects.get(serial_number="EGG-007")
+
+        list_machine = self.client.get(reverse("machine_list"))
+        self.assertEqual(list_machine.status_code, 200)
+        self.assertContains(list_machine, "Линия 7")
+
+        create_record = self.client.post(
+            reverse("daily_record_create"),
+            {
+                "flock": flock.id,
+                "machine": machine.id,
+                "record_date": timezone.localdate().isoformat(),
+                "c0_count": 50,
+                "c1_count": 40,
+                "c2_count": 30,
+                "broken_count": 1,
+                "chipped_count": 0,
+                "mortality_count": 0,
+            },
+            follow=True,
+        )
+        self.assertEqual(create_record.status_code, 200)
+        record = DailyProductionRecord.objects.get(flock=flock, record_date=timezone.localdate())
+        self.assertEqual(record.machine_id, machine.id)

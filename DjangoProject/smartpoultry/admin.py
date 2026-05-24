@@ -6,6 +6,7 @@ from .models import (
     Customer,
     DailyFinanceSnapshot,
     DailyProductionRecord,
+    EggCollectionMachine,
     EggPrice,
     EggProductionStandard,
     FeedStock,
@@ -48,6 +49,7 @@ class EggProductionStandardAdmin(admin.ModelAdmin):
 class DailyProductionRecordAdmin(admin.ModelAdmin):
     list_display = (
         "flock",
+        "machine",
         "record_date",
         "c0_count",
         "c1_count",
@@ -57,6 +59,13 @@ class DailyProductionRecordAdmin(admin.ModelAdmin):
     )
     list_filter = ("flock", "record_date")
     date_hierarchy = "record_date"
+
+
+@admin.register(EggCollectionMachine)
+class EggCollectionMachineAdmin(admin.ModelAdmin):
+    list_display = ("name", "serial_number", "is_active", "updated_at")
+    list_filter = ("is_active",)
+    search_fields = ("name", "serial_number", "note")
 
 
 @admin.register(Alert)

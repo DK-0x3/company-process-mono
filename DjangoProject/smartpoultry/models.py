@@ -83,9 +83,29 @@ class EggProductionStandard(TimeStampedModel):
         return f"{self.cross_name} w{self.week_number}: {self.target_efficiency_percent}%"
 
 
+class EggCollectionMachine(TimeStampedModel):
+    name = models.CharField(max_length=128, unique=True)
+    serial_number = models.CharField(max_length=64, unique=True)
+    is_active = models.BooleanField(default=True)
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return f"{self.name} ({self.serial_number})"
+
+
 class DailyProductionRecord(TimeStampedModel):
     flock = models.ForeignKey(
         Flock, on_delete=models.CASCADE, related_name="production_records"
+    )
+    machine = models.ForeignKey(
+        EggCollectionMachine,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="production_records",
     )
     record_date = models.DateField(default=timezone.localdate)
     c0_count = models.PositiveIntegerField(default=0)

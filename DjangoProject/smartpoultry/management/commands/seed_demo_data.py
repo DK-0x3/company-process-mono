@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from smartpoultry.models import (
     Alert,
     Customer,
     DailyProductionRecord,
+    EggCollectionMachine,
     FeedExpense,
     FeedStock,
     FeedType,
@@ -67,6 +68,11 @@ class Command(BaseCommand):
             default=42,
             help="Pseudo-random seed to keep generated data stable (default: 42).",
         )
+        parser.add_argument(
+            "--end-date",
+            default="",
+            help="Inclusive record end date in YYYY-MM-DD format (default: today).",
+        )
 
     def handle(self, *args, **options):
         days = max(7, int(options["days"]))
@@ -75,6 +81,13 @@ class Command(BaseCommand):
         managers_count = max(1, int(options["managers"]))
         cross_name = options["cross"].strip() or "Lohmann"
         rng = random.Random(int(options["seed"]))
+        end_date = timezone.localdate()
+        end_date_raw = (options.get("end_date") or "").strip()
+        if end_date_raw:
+            try:
+                end_date = date.fromisoformat(end_date_raw)
+            except ValueError as exc:
+                raise CommandError("Invalid --end-date. Expected YYYY-MM-DD.") from exc
 
         owner_group, _ = Group.objects.get_or_create(name="Owner")
         manager_group, _ = Group.objects.get_or_create(name="Manager")
@@ -117,7 +130,19 @@ class Command(BaseCommand):
             )
             houses.append(house)
 
-        today = timezone.localdate()
+        machines: list[EggCollectionMachine] = []
+        for idx in range(1, 5):
+            machine, _ = EggCollectionMachine.objects.update_or_create(
+                serial_number=f"EGG-{idx:03d}",
+                defaults={
+                    "name": f"Линия сбора {idx}",
+                    "is_active": True,
+                    "note": "Заглушка интеграции с оборудованием",
+                },
+            )
+            machines.append(machine)
+
+        today = end_date
         flocks: list[Flock] = []
         for house_idx, house in enumerate(houses, start=1):
             for flock_idx in range(1, flocks_per_house + 1):
@@ -183,6 +208,7 @@ class Command(BaseCommand):
                     flock=flock,
                     record_date=record_date,
                     defaults={
+                        "machine": rng.choice(machines),
                         "c0_count": c0_count,
                         "c1_count": c1_count,
                         "c2_count": c2_count,

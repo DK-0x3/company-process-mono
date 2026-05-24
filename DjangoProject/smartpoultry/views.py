@@ -29,6 +29,7 @@ from .forms import (
     AutomationSettingsForm,
     CustomerForm,
     DailyProductionRecordForm,
+    EggCollectionMachineForm,
     EggProductionStandardForm,
     EggProductionStandardRangeForm,
     FeedAutomationSettingsForm,
@@ -59,6 +60,7 @@ from .models import (
     DailyFinanceSnapshot,
     FeedExpense,
     DailyProductionRecord,
+    EggCollectionMachine,
     EggProductionStandard,
     FeedStock,
     FeedStockMovement,
@@ -105,6 +107,15 @@ def can_approve_purchase_requests(user):
 
 def can_manage_alerts(user):
     return user.is_authenticated and (is_owner(user) or user.has_perm("smartpoultry.change_alert"))
+
+
+def can_view_daily_records(user):
+    return user.is_authenticated and (
+        is_owner(user)
+        or user.has_perm("smartpoultry.view_dailyproductionrecord")
+        or user.has_perm("smartpoultry.add_dailyproductionrecord")
+        or user.has_perm("smartpoultry.change_dailyproductionrecord")
+    )
 
 
 class SmartLoginView(LoginView):
@@ -593,14 +604,110 @@ def daily_record_create(request):
         return redirect("dashboard")
 
     if request.method == "POST":
+        flock_id_raw = (request.POST.get("flock") or "").strip()
+        duplicate_date = _parse_date((request.POST.get("record_date") or "").strip())
+        if flock_id_raw.isdigit() and duplicate_date:
+            duplicate = DailyProductionRecord.objects.filter(
+                flock_id=int(flock_id_raw),
+                record_date=duplicate_date,
+            ).first()
+            if duplicate:
+                if request.user.has_perm("smartpoultry.change_dailyproductionrecord") or is_owner(
+                    request.user
+                ):
+                    messages.info(
+                        request,
+                        "Запись для выбранного стада на эту дату уже существует. Откройте редактирование.",
+                    )
+                    return redirect("daily_record_update", record_id=duplicate.id)
+                messages.error(
+                    request,
+                    "Запись для выбранного стада на эту дату уже существует. Обратитесь к пользователю с правом редактирования.",
+                )
+                return redirect("daily_record_list")
+
         form = DailyProductionRecordForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Дневная запись сохранена. Автопроверки и расчеты выполнены.")
-            return redirect("dashboard")
+            return redirect("daily_record_list")
     else:
         form = DailyProductionRecordForm(initial={"record_date": timezone.localdate()})
-    return render(request, "smartpoultry/daily_record_form.html", {"form": form})
+    return render(
+        request,
+        "smartpoultry/daily_record_form.html",
+        {
+            "form": form,
+            "form_title": "Новая дневная запись",
+            "cancel_url_name": "daily_record_list",
+        },
+    )
+
+
+@login_required
+def daily_record_list(request):
+    if not can_view_daily_records(request.user):
+        return HttpResponseForbidden("Недостаточно прав для просмотра дневных записей.")
+
+    items = DailyProductionRecord.objects.select_related("flock", "flock__house", "machine")
+    date_from = _parse_date(request.GET.get("date_from"))
+    date_to = _parse_date(request.GET.get("date_to"))
+    flock_id = (request.GET.get("flock_id") or "").strip()
+    house_id = (request.GET.get("house_id") or "").strip()
+
+    if date_from:
+        items = items.filter(record_date__gte=date_from)
+    if date_to:
+        items = items.filter(record_date__lte=date_to)
+    if flock_id:
+        items = items.filter(flock_id=flock_id)
+    if house_id:
+        items = items.filter(flock__house_id=house_id)
+
+    items = items.order_by("-record_date", "flock__name", "-created_at")
+    return render(
+        request,
+        "smartpoultry/daily_record_list.html",
+        {
+            "records": items[:500],
+            "flocks": Flock.objects.select_related("house").order_by("name"),
+            "houses": PoultryHouse.objects.order_by("name"),
+            "can_edit": request.user.has_perm("smartpoultry.change_dailyproductionrecord")
+            or is_owner(request.user),
+            "filters": {
+                "date_from": request.GET.get("date_from", ""),
+                "date_to": request.GET.get("date_to", ""),
+                "flock_id": flock_id,
+                "house_id": house_id,
+            },
+        },
+    )
+
+
+@login_required
+def daily_record_update(request, record_id):
+    if not (request.user.has_perm("smartpoultry.change_dailyproductionrecord") or is_owner(request.user)):
+        return HttpResponseForbidden("Недостаточно прав для редактирования дневной записи.")
+
+    record = get_object_or_404(DailyProductionRecord, id=record_id)
+    if request.method == "POST":
+        form = DailyProductionRecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Дневная запись обновлена.")
+            return redirect("daily_record_list")
+    else:
+        form = DailyProductionRecordForm(instance=record)
+    return render(
+        request,
+        "smartpoultry/daily_record_form.html",
+        {
+            "form": form,
+            "record": record,
+            "form_title": "Редактирование дневной записи",
+            "cancel_url_name": "daily_record_list",
+        },
+    )
 
 
 @user_passes_test(is_owner)
@@ -637,6 +744,55 @@ def manager_update(request, user_id):
         request,
         "smartpoultry/manager_form.html",
         {"form": form, "mode": "update", "manager": manager},
+    )
+
+
+@login_required
+def machine_list(request):
+    if not request.user.has_perm("smartpoultry.view_eggcollectionmachine") and not is_owner(
+        request.user
+    ):
+        return HttpResponseForbidden("Недостаточно прав для просмотра машин.")
+    items = EggCollectionMachine.objects.order_by("name")
+    return render(request, "smartpoultry/machine_list.html", {"machines": items})
+
+
+@login_required
+def machine_create(request):
+    if not request.user.has_perm("smartpoultry.add_eggcollectionmachine") and not is_owner(
+        request.user
+    ):
+        return HttpResponseForbidden("Недостаточно прав для добавления машин.")
+    if request.method == "POST":
+        form = EggCollectionMachineForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Машина добавлена.")
+            return redirect("machine_list")
+    else:
+        form = EggCollectionMachineForm()
+    return render(request, "smartpoultry/machine_form.html", {"form": form})
+
+
+@login_required
+def machine_update(request, machine_id):
+    if not request.user.has_perm("smartpoultry.change_eggcollectionmachine") and not is_owner(
+        request.user
+    ):
+        return HttpResponseForbidden("Недостаточно прав для редактирования машин.")
+    machine = get_object_or_404(EggCollectionMachine, id=machine_id)
+    if request.method == "POST":
+        form = EggCollectionMachineForm(request.POST, instance=machine)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Машина обновлена.")
+            return redirect("machine_list")
+    else:
+        form = EggCollectionMachineForm(instance=machine)
+    return render(
+        request,
+        "smartpoultry/machine_form.html",
+        {"form": form, "machine": machine},
     )
 
 

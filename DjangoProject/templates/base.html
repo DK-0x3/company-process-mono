@@ -35,7 +35,7 @@
             {% with route=request.resolver_match.url_name %}
             <ul class="navbar-nav module-nav me-auto align-items-center gap-2">
                 {% if ui_perms.can_dashboard or ui_perms.can_daily_record or ui_perms.can_egg %}
-                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' %}active{% endif %}" href="{% url 'dashboard' %}">Дашборд</a></li>
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' or route == 'daily_record_list' or route == 'daily_record_update' %}active{% endif %}" href="{% url 'dashboard' %}">Дашборд</a></li>
                 {% endif %}
                 {% if ui_perms.can_warehouse %}
                     <li class="nav-item"><a class="nav-link py-1 {% if route == 'warehouse_operations' or route == 'purchase_request_list' or route == 'purchase_request_create' or route == 'purchase_receipt' or route == 'feed_type_list' or route == 'feed_type_create' or route == 'feed_type_update' or route == 'feed_expense_list' or route == 'feed_expense_create' or route == 'feed_expense_update' or route == 'auto_feed_settings' or route == 'ration_phase_create' or route == 'ration_phase_update' %}active{% endif %}" href="{% url 'warehouse_operations' %}">Склад</a></li>
@@ -47,7 +47,7 @@
                     <li class="nav-item"><a class="nav-link py-1 {% if route == 'incidents_list' or route == 'incident_capa_update' or route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incidents_list' %}">Инциденты</a></li>
                 {% endif %}
                 {% if ui_perms.can_admin %}
-                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'automation_settings' %}active{% endif %}" href="{% url 'manager_list' %}">Администрирование</a></li>
+                    <li class="nav-item"><a class="nav-link py-1 {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'machine_list' or route == 'machine_create' or route == 'machine_update' or route == 'automation_settings' %}active{% endif %}" href="{% url 'manager_list' %}">Администрирование</a></li>
                 {% endif %}
             </ul>
             {% endwith %}
@@ -109,7 +109,7 @@
                                     {% if ui_perms.can_incident_causes %}
                                         <a class="nav-link {% if route == 'incident_cause_list' or route == 'incident_cause_create' %}active{% endif %}" href="{% url 'incident_cause_list' %}">Причины инцидентов</a>
                                     {% endif %}
-                                {% elif route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'automation_settings' %}
+                                {% elif route == 'manager_list' or route == 'manager_create' or route == 'manager_update' or route == 'poultry_house_list' or route == 'poultry_house_create' or route == 'poultry_house_update' or route == 'flock_list' or route == 'flock_create' or route == 'flock_update' or route == 'machine_list' or route == 'machine_create' or route == 'machine_update' or route == 'automation_settings' %}
                                     {% if ui_perms.can_managers %}
                                         <a class="nav-link {% if route == 'manager_list' or route == 'manager_create' or route == 'manager_update' %}active{% endif %}" href="{% url 'manager_list' %}">Менеджеры</a>
                                     {% endif %}
@@ -119,10 +119,13 @@
                                     {% if ui_perms.can_flocks %}
                                         <a class="nav-link {% if route == 'flock_list' or route == 'flock_create' or route == 'flock_update' %}active{% endif %}" href="{% url 'flock_list' %}">Стада</a>
                                     {% endif %}
+                                    {% if ui_perms.can_machines %}
+                                        <a class="nav-link {% if route == 'machine_list' or route == 'machine_create' or route == 'machine_update' %}active{% endif %}" href="{% url 'machine_list' %}">Машины</a>
+                                    {% endif %}
                                     {% if ui_perms.can_automation_settings %}
                                         <a class="nav-link {% if route == 'automation_settings' %}active{% endif %}" href="{% url 'automation_settings' %}">Настройки автоматизации</a>
                                     {% endif %}
-                                {% elif route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' %}
+                                {% elif route == 'dashboard' or route == 'kpi_dashboard' or route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' or route == 'daily_record_create' or route == 'daily_record_list' or route == 'daily_record_update' %}
                                     {% if ui_perms.can_dashboard %}
                                         <a class="nav-link {% if route == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Операционный дашборд</a>
                                     {% endif %}
@@ -131,6 +134,9 @@
                                     {% endif %}
                                     {% if ui_perms.can_egg %}
                                         <a class="nav-link {% if route == 'egg_dashboard' or route == 'egg_standard_create' or route == 'egg_standard_update' %}active{% endif %}" href="{% url 'egg_dashboard' %}">Яйценоскость</a>
+                                    {% endif %}
+                                    {% if ui_perms.can_daily_record %}
+                                        <a class="nav-link {% if route == 'daily_record_list' or route == 'daily_record_update' %}active{% endif %}" href="{% url 'daily_record_list' %}">Дневные записи</a>
                                     {% endif %}
                                     {% if ui_perms.can_daily_record %}
                                         <a class="nav-link {% if route == 'daily_record_create' %}active{% endif %}" href="{% url 'daily_record_create' %}">Новая дневная запись</a>

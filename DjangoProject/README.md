@@ -32,6 +32,11 @@ python -m venv .venv
 ./.venv/bin/python manage.py seed_reference_data --cross Lohmann
 ```
 
+Создание тестовых данных
+```bash
+./.venv/bin/python manage.py seed_demo_data --days 30 --end-date 2026-05-29
+```
+
 ## 2. Роли и доступы
 
 - **Owner**: полный доступ, управление менеджерами.

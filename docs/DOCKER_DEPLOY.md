@@ -144,6 +144,16 @@ git pull
 docker compose up -d --build
 ```
 
+Обновление определенного контейнера
+```bash
+docker compose up -d --build [название контейнера]
+```
+
+Добавить тестовые данныя для проекта Django
+```bash
+docker compose exec django python manage.py seed_demo_data --days 30 --end-date 2026-05-29
+```
+
 ## 8) Остановка
 
 ```bash
