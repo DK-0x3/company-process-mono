@@ -172,20 +172,435 @@ const MATERIAL_CATEGORY_NAMES = [
   'Контроль качества',
 ];
 
-const MATERIAL_TEMPLATES = [
-  'Стандарт передачи задач между ролями',
-  'Шаблон плана внедрения',
-  'Чек-лист ревью результатов',
-  'Методика анализа отклонений',
-  'Регламент эскалации рисков',
-  'Практика документирования изменений',
-  'Шаблон итогового отчета этапа',
-  'Гайд по коммуникации между командами',
-  'Памятка по качеству входных данных',
-  'Рекомендации по контролю сроков',
-  'Процедура инцидент-менеджмента',
-  'Регламент обратной связи',
+type MaterialArticle = {
+  title: string;
+  objective: string;
+  sections: Array<{ heading: string; points: string[] }>;
+  checklist: string[];
+  links: string[];
+  videoTitle: string;
+  videoUrl: string;
+};
+
+const MATERIAL_ARTICLES: MaterialArticle[] = [
+  {
+    title: 'Стандарт передачи задач между ролями',
+    objective: 'Снизить потери контекста между этапами процесса.',
+    sections: [
+      {
+        heading: 'Когда передача считается корректной',
+        points: [
+          'Уточнены входные данные и ожидаемый результат.',
+          'Назначен ответственный за приемку результата.',
+          'Описаны риски и условия эскалации.',
+        ],
+      },
+      {
+        heading: 'Ключевые артефакты handoff',
+        points: [
+          'Карточка задачи с критериями готовности.',
+          'Ссылка на актуальный регламент этапа.',
+          'План коммуникации на время исполнения.',
+        ],
+      },
+    ],
+    checklist: [
+      'Проверены критерии приемки.',
+      'Срок и владелец этапа подтверждены.',
+      'Изменения зафиксированы письменно.',
+      'Риски и зависимости отмечены.',
+    ],
+    links: [
+      '[ITIL Foundation overview](https://www.axelos.com/certifications/itil-service-management/itil-4-foundation)',
+      '[RACI matrix guide](https://www.projectmanager.com/blog/raci-chart-made-simple)',
+    ],
+    videoTitle: 'Handoff между командами',
+    videoUrl: 'https://www.youtube.com/watch?v=7xTGNNLPyMI',
+  },
+  {
+    title: 'Шаблон плана внедрения',
+    objective: 'Стандартизировать запуск изменений в эксплуатацию.',
+    sections: [
+      {
+        heading: 'Что должно быть в плане',
+        points: [
+          'Окно внедрения и ответственные роли.',
+          'Пошаговый сценарий запуска.',
+          'План отката и контрольные точки.',
+        ],
+      },
+      {
+        heading: 'Управление рисками внедрения',
+        points: [
+          'Классификация рисков по влиянию и вероятности.',
+          'Порог эскалации в штаб внедрения.',
+          'Критерии остановки релиза.',
+        ],
+      },
+    ],
+    checklist: [
+      'Согласован план отката.',
+      'Проведен pre-release checklist.',
+      'Утверждена коммуникация для пользователей.',
+      'Настроен мониторинг после запуска.',
+    ],
+    links: [
+      '[Deployment best practices](https://martinfowler.com/bliki/BlueGreenDeployment.html)',
+      '[Release checklist example](https://www.atlassian.com/continuous-delivery/principles/release-management)',
+    ],
+    videoTitle: 'Как подготовить план релиза',
+    videoUrl: 'https://www.youtube.com/watch?v=5xV5f8m1zq4',
+  },
+  {
+    title: 'Чек-лист ревью результатов',
+    objective: 'Повысить качество приемки результата перед переходом на следующий этап.',
+    sections: [
+      {
+        heading: 'Проверка содержания',
+        points: [
+          'Результат соответствует исходной цели.',
+          'Фиксированы ограничения и допущения.',
+          'Подтверждены данные для последующего этапа.',
+        ],
+      },
+      {
+        heading: 'Проверка управляемости',
+        points: [
+          'Назначены владельцы доработок.',
+          'Описаны метрики качества результата.',
+          'Определен срок контрольной проверки.',
+        ],
+      },
+    ],
+    checklist: [
+      'Есть ссылка на исходную постановку.',
+      'Описаны изменения относительно базового плана.',
+      'Есть заключение ответственной роли.',
+      'Есть дата следующего контроля.',
+    ],
+    links: [
+      '[Definition of Done](https://www.atlassian.com/agile/project-management/definition-of-done)',
+      '[Quality gates in delivery](https://www.sonarsource.com/learn/quality-gate/)',
+    ],
+    videoTitle: 'Quality gate на этапе приемки',
+    videoUrl: 'https://www.youtube.com/watch?v=OG4N2i4gS5M',
+  },
+  {
+    title: 'Методика анализа отклонений',
+    objective: 'Системно выявлять причины отклонений по срокам и качеству.',
+    sections: [
+      {
+        heading: 'Как фиксировать отклонение',
+        points: [
+          'Отмечать факт, дату и затронутый этап.',
+          'Оценивать влияние на downstream-процессы.',
+          'Выделять первичные гипотезы причин.',
+        ],
+      },
+      {
+        heading: 'Подход к RCA',
+        points: [
+          'Использовать 5 Why для первичной диагностики.',
+          'Привязывать выводы к фактическим метрикам.',
+          'Назначать корректирующие действия с дедлайном.',
+        ],
+      },
+    ],
+    checklist: [
+      'Собраны факты, а не предположения.',
+      'Проверены альтернативные гипотезы.',
+      'Назначен владелец корректирующего действия.',
+      'Определена дата проверки эффекта.',
+    ],
+    links: [
+      '[Root cause analysis methods](https://asq.org/quality-resources/root-cause-analysis)',
+      '[5 Whys technique](https://www.mindtools.com/a3mi00v/5-whys)',
+    ],
+    videoTitle: 'Root cause analysis на практике',
+    videoUrl: 'https://www.youtube.com/watch?v=2Xx7fSkt2iQ',
+  },
+  {
+    title: 'Регламент эскалации рисков',
+    objective: 'Обеспечить своевременную реакцию на критичные блокеры.',
+    sections: [
+      {
+        heading: 'Уровни эскалации',
+        points: [
+          'Операционный уровень — внутри команды.',
+          'Тактический уровень — руководитель направления.',
+          'Стратегический уровень — комитет изменений.',
+        ],
+      },
+      {
+        heading: 'Триггеры эскалации',
+        points: [
+          'Отклонение сроков более чем на 10%.',
+          'Падение ключевой метрики качества.',
+          'Риск влияния на клиентский SLA.',
+        ],
+      },
+    ],
+    checklist: [
+      'Риск классифицирован по приоритету.',
+      'Определен канал эскалации.',
+      'Зафиксировано решение по риску.',
+      'Назначен контроль выполнения решения.',
+    ],
+    links: [
+      '[Risk register basics](https://www.pmi.org/learning/library/risk-management-principles-practices-7366)',
+      '[Operational risk management](https://www.iso.org/iso-31000-risk-management.html)',
+    ],
+    videoTitle: 'Как эскалировать риски без задержек',
+    videoUrl: 'https://www.youtube.com/watch?v=miXmJ6t9W1Q',
+  },
+  {
+    title: 'Практика документирования изменений',
+    objective: 'Сделать историю изменений прозрачной и проверяемой.',
+    sections: [
+      {
+        heading: 'Правила фиксации изменений',
+        points: [
+          'Каждое изменение должно иметь основание.',
+          'Указывать затронутые этапы и артефакты.',
+          'Фиксировать влияние на сроки и ресурсы.',
+        ],
+      },
+      {
+        heading: 'Минимальный формат записи',
+        points: [
+          'Дата и инициатор изменения.',
+          'Описание сути и причины.',
+          'Решение, согласование, дата вступления в силу.',
+        ],
+      },
+    ],
+    checklist: [
+      'Заполнены все поля change-log.',
+      'Указано влияние на KPI.',
+      'Есть ссылка на согласование.',
+      'Обновлены связанные документы.',
+    ],
+    links: [
+      '[Change management process](https://www.servicenow.com/products/itsm/change-management.html)',
+      '[Version control for docs](https://www.atlassian.com/git/tutorials/what-is-version-control)',
+    ],
+    videoTitle: 'Change log для операционных процессов',
+    videoUrl: 'https://www.youtube.com/watch?v=USjZcfj8yxE',
+  },
+  {
+    title: 'Шаблон итогового отчета этапа',
+    objective: 'Унифицировать отчетность по завершенным этапам.',
+    sections: [
+      {
+        heading: 'Структура отчета',
+        points: [
+          'Цель этапа и фактический результат.',
+          'Сроки: план/факт и причины отклонений.',
+          'Качество: метрики, дефекты, решения.',
+        ],
+      },
+      {
+        heading: 'Рекомендации по улучшению',
+        points: [
+          'Какие практики сработали.',
+          'Какие риски повторяются.',
+          'Что изменить в следующем цикле.',
+        ],
+      },
+    ],
+    checklist: [
+      'Указаны KPI этапа.',
+      'Есть раздел lessons learned.',
+      'Указаны владельцы follow-up задач.',
+      'Отчет согласован ответственным.',
+    ],
+    links: [
+      '[Lessons learned template](https://www.projectmanager.com/blog/lessons-learned-template)',
+      '[Post-mortem meeting guide](https://www.atlassian.com/incident-management/postmortem)',
+    ],
+    videoTitle: 'Как писать отчеты по этапам',
+    videoUrl: 'https://www.youtube.com/watch?v=Qg8vSLDixu0',
+  },
+  {
+    title: 'Гайд по коммуникации между командами',
+    objective: 'Снизить задержки, вызванные несинхронизированной коммуникацией.',
+    sections: [
+      {
+        heading: 'Базовые правила коммуникации',
+        points: [
+          'Фиксировать решения в общем канале.',
+          'Разделять вопросы по приоритету и сроку ответа.',
+          'Использовать единый формат статусов.',
+        ],
+      },
+      {
+        heading: 'План синхронизаций',
+        points: [
+          'Ежедневный статус по критичным задачам.',
+          'Еженедельная синхронизация владельцев процессов.',
+          'Эскалация блокеров в течение рабочего дня.',
+        ],
+      },
+    ],
+    checklist: [
+      'Определены каналы коммуникации.',
+      'Указано время SLA на ответы.',
+      'Назначены ответственные за коммуникацию.',
+      'Есть шаблон статус-сообщения.',
+    ],
+    links: [
+      '[Team communication patterns](https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/the-organization-blog/how-to-improve-team-communication)',
+      '[Working agreements template](https://www.atlassian.com/team-playbook/plays/working-agreements)',
+    ],
+    videoTitle: 'Коммуникация в кросс-функциональных командах',
+    videoUrl: 'https://www.youtube.com/watch?v=4x0fPZrPV3M',
+  },
+  {
+    title: 'Памятка по качеству входных данных',
+    objective: 'Минимизировать переработки из-за неполных или некорректных входов.',
+    sections: [
+      {
+        heading: 'Что проверяем во входе',
+        points: [
+          'Полнота обязательных атрибутов.',
+          'Актуальность источника данных.',
+          'Согласованность с предыдущим этапом.',
+        ],
+      },
+      {
+        heading: 'Типичные ошибки',
+        points: [
+          'Несоответствие формата данных.',
+          'Отсутствие владельца источника.',
+          'Конфликт версий документа.',
+        ],
+      },
+    ],
+    checklist: [
+      'Проведена валидация формата.',
+      'Согласована версия документа.',
+      'Есть подтверждение владельца данных.',
+      'Входные данные архивированы.',
+    ],
+    links: [
+      '[Data quality dimensions](https://www.ibm.com/topics/data-quality)',
+      '[Data governance basics](https://www.collibra.com/us/en/knowledge-center/data-governance)',
+    ],
+    videoTitle: 'Проверка качества данных',
+    videoUrl: 'https://www.youtube.com/watch?v=Oc9L6hY2FqY',
+  },
+  {
+    title: 'Рекомендации по контролю сроков',
+    objective: 'Улучшить прогнозируемость сроков исполнения этапов.',
+    sections: [
+      {
+        heading: 'Планирование сроков',
+        points: [
+          'Оценивать задачи по единой шкале сложности.',
+          'Выделять буфер на риски и согласования.',
+          'Фиксировать контрольные точки заранее.',
+        ],
+      },
+      {
+        heading: 'Мониторинг исполнения',
+        points: [
+          'Сравнивать план/факт по каждому этапу.',
+          'Отслеживать тренд задержек по ролям.',
+          'Своевременно пересматривать приоритеты.',
+        ],
+      },
+    ],
+    checklist: [
+      'Есть baseline-план.',
+      'Определены контрольные точки.',
+      'Есть правила репланирования.',
+      'Фиксируются причины отклонений.',
+    ],
+    links: [
+      '[Critical path method basics](https://www.projectmanager.com/guides/critical-path-method)',
+      '[Schedule risk analysis](https://www.pmi.org/learning/library/project-schedule-risk-analysis-10317)',
+    ],
+    videoTitle: 'Контроль сроков в проектной деятельности',
+    videoUrl: 'https://www.youtube.com/watch?v=7fNQmP0rR0M',
+  },
+  {
+    title: 'Процедура инцидент-менеджмента',
+    objective: 'Сократить время реакции и восстановления при инцидентах.',
+    sections: [
+      {
+        heading: 'Жизненный цикл инцидента',
+        points: [
+          'Обнаружение и первичная диагностика.',
+          'Локализация и минимизация ущерба.',
+          'Восстановление и пост-инцидентный разбор.',
+        ],
+      },
+      {
+        heading: 'Роли в инциденте',
+        points: [
+          'Incident manager.',
+          'Технический эксперт.',
+          'Коммуникационный координатор.',
+        ],
+      },
+    ],
+    checklist: [
+      'Открыт инцидент в системе учета.',
+      'Назначен incident manager.',
+      'Канал коммуникации создан.',
+      'Подготовлен post-mortem.',
+    ],
+    links: [
+      '[Incident management practice](https://www.atlassian.com/incident-management)',
+      '[SRE incident response](https://sre.google/sre-book/handling-overload/)',
+    ],
+    videoTitle: 'Incident response в продуктовых командах',
+    videoUrl: 'https://www.youtube.com/watch?v=9QJv8f9nY9Y',
+  },
+  {
+    title: 'Регламент обратной связи',
+    objective: 'Сделать обратную связь регулярной и применимой к улучшениям.',
+    sections: [
+      {
+        heading: 'Как собирать обратную связь',
+        points: [
+          'Фиксировать факты и наблюдаемые эффекты.',
+          'Использовать формат: факт -> влияние -> предложение.',
+          'Не смешивать обратную связь и оценку личности.',
+        ],
+      },
+      {
+        heading: 'Как превращать фидбек в улучшения',
+        points: [
+          'Приоритизировать темы по влиянию на KPI.',
+          'Назначать владельцев изменений.',
+          'Проверять эффект на следующем цикле.',
+        ],
+      },
+    ],
+    checklist: [
+      'Фидбек структурирован по шаблону.',
+      'Назначен ответственный за обработку.',
+      'Определен срок внедрения изменений.',
+      'Эффект изменений зафиксирован.',
+    ],
+    links: [
+      '[Retrospective techniques](https://www.atlassian.com/team-playbook/plays/retrospective)',
+      '[Feedback model SBI](https://www.ccl.org/articles/leading-effectively-articles/closing-the-gap-between-intent-vs-impact-sbi-feedback-model/)',
+    ],
+    videoTitle: 'Как давать полезную обратную связь',
+    videoUrl: 'https://www.youtube.com/watch?v=7m6P4R4lU8A',
+  },
 ];
+
+type TestQuestionSeed = {
+  type: TestQuestionType;
+  title: string;
+  description?: string;
+  textAnswerPlaceholder?: string;
+  expectedTextAnswer?: string;
+  options?: Array<{ text: string; isCorrect: boolean }>;
+};
 
 function sample<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -216,6 +631,197 @@ function employeeFullName(seedIndex: number): string {
   const firstName = FIRST_NAMES[seedIndex % FIRST_NAMES.length];
   const lastName = LAST_NAMES[(seedIndex * 7) % LAST_NAMES.length];
   return `${lastName} ${firstName}`;
+}
+
+function buildMaterialContent(params: {
+  article: MaterialArticle;
+  unitName: string;
+  processNames: string[];
+  taskNames: string[];
+  experts: string[];
+}): string {
+  const { article, unitName, processNames, taskNames, experts } = params;
+  const processBlock = processNames.map((p) => `- ${p}`).join('\n');
+  const taskBlock = taskNames.map((t) => `- ${t}`).join('\n');
+  const expertsBlock = experts.map((e) => `- ${e}`).join('\n');
+  const sectionsBlock = article.sections
+    .map(
+      (section) =>
+        `## ${section.heading}\n${section.points.map((point) => `- ${point}`).join('\n')}`,
+    )
+    .join('\n\n');
+
+  const checklistBlock = article.checklist.map((item) => `- [ ] ${item}`).join('\n');
+  const linksBlock = article.links.map((link) => `- ${link}`).join('\n');
+
+  return `# ${article.title}
+
+**Подразделение:** ${unitName}  
+**Цель материала:** ${article.objective}
+
+## Где применяется
+### Процессы
+${processBlock}
+
+### Этапы и задачи
+${taskBlock}
+
+## Ответственные эксперты
+${expertsBlock}
+
+${sectionsBlock}
+
+## Контрольный чек-лист
+${checklistBlock}
+
+## Рекомендуемые внешние источники
+${linksBlock}
+
+## Видео по теме
+[${article.videoTitle}](${article.videoUrl})
+`;
+}
+
+function buildQuestionsForTest(params: {
+  unitName: string;
+  processNames: string[];
+  experts: string[];
+  testIndex: number;
+}): TestQuestionSeed[] {
+  const { unitName, processNames, experts, testIndex } = params;
+  const processA = processNames[0] ?? 'Ключевой процесс';
+  const processB = processNames[1] ?? processA;
+  const expertA = experts[0] ?? 'Ответственная роль этапа';
+  const expertB = experts[1] ?? expertA;
+
+  return [
+    {
+      type: TestQuestionType.single_choice,
+      title: `Какой вход обязателен перед стартом процесса "${processA}"?`,
+      description: 'Выберите наиболее полный и корректный вариант.',
+      options: [
+        { text: 'Согласованные требования, критерии приемки и владелец результата', isCorrect: true },
+        { text: 'Только устная договоренность команды', isCorrect: false },
+        { text: 'Любой набор данных без проверки качества', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.multiple_choice,
+      title: `Какие признаки у качественного handoff в "${unitName}"?`,
+      options: [
+        { text: 'Зафиксированы входные данные', isCorrect: true },
+        { text: 'Назначена ответственная роль за приемку', isCorrect: true },
+        { text: 'Описаны риски и ограничения', isCorrect: true },
+        { text: 'Отсутствует связь с предыдущим этапом', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.single_choice,
+      title: `Кто утверждает итог этапа в "${processB}"?`,
+      options: [
+        { text: expertA, isCorrect: true },
+        { text: 'Случайный участник команды', isCorrect: false },
+        { text: 'Любой наблюдатель без полномочий', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.multiple_choice,
+      title: 'Что обязательно должно быть в статус-отчете этапа?',
+      options: [
+        { text: 'Статус и факт отклонений от плана', isCorrect: true },
+        { text: 'Риски и принятые решения', isCorrect: true },
+        { text: 'Факты по качеству и метрикам', isCorrect: true },
+        { text: 'Необоснованные оценки без данных', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.text,
+      title: `Опишите цель процесса "${processA}" в одном предложении`,
+      textAnswerPlaceholder: 'Кратко сформулируйте целевой результат процесса',
+      expectedTextAnswer:
+        'Процесс должен завершаться предсказуемым результатом, подтвержденным ответственными ролями и метриками качества.',
+    },
+    {
+      type: TestQuestionType.single_choice,
+      title: 'Когда нужно запускать эскалацию риска?',
+      options: [
+        { text: 'Когда риск влияет на срок, качество или SLA и команда не может снять его в рабочем контуре', isCorrect: true },
+        { text: 'Только после завершения этапа', isCorrect: false },
+        { text: 'Никогда, если есть формальный план', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.multiple_choice,
+      title: 'Какие действия относятся к корректной работе с изменениями?',
+      options: [
+        { text: 'Фиксировать инициатора и причину изменения', isCorrect: true },
+        { text: 'Оценивать влияние на сроки и ресурсы', isCorrect: true },
+        { text: 'Обновлять связанные документы', isCorrect: true },
+        { text: 'Вносить изменения без согласования', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.single_choice,
+      title: `Кто контролирует полноту входных данных в "${unitName}"?`,
+      options: [
+        { text: expertB, isCorrect: true },
+        { text: 'Только внешний подрядчик', isCorrect: false },
+        { text: 'Произвольный сотрудник без роли', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.text,
+      title: 'Как проверить, что результат этапа готов к передаче дальше?',
+      textAnswerPlaceholder: 'Опишите краткий алгоритм проверки',
+      expectedTextAnswer:
+        'Проверить критерии приемки, подтвердить качество данных, зафиксировать риски и получить подтверждение ответственной роли.',
+    },
+    {
+      type: TestQuestionType.multiple_choice,
+      title: 'Выберите корректные практики коммуникации между командами',
+      options: [
+        { text: 'Письменно фиксировать решения', isCorrect: true },
+        { text: 'Согласовывать SLA на ответы', isCorrect: true },
+        { text: 'Эскалировать блокеры в день обнаружения', isCorrect: true },
+        { text: 'Скрывать риски до ретроспективы', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.single_choice,
+      title: 'Что является признаком зрелого процесса?',
+      options: [
+        { text: 'Предсказуемость результата и прозрачная ответственность', isCorrect: true },
+        { text: 'Частые исключения без анализа причин', isCorrect: false },
+        { text: 'Отсутствие формальных критериев качества', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.multiple_choice,
+      title: `Какие артефакты обязательны для контроля качества в тесте #${testIndex}?`,
+      options: [
+        { text: 'Чек-лист контроля', isCorrect: true },
+        { text: 'Протокол проверки', isCorrect: true },
+        { text: 'Отчет о рисках', isCorrect: true },
+        { text: 'Несогласованные заметки в личном чате', isCorrect: false },
+      ],
+    },
+    {
+      type: TestQuestionType.text,
+      title: `Какие улучшения вы предложите для процесса "${processB}"?`,
+      textAnswerPlaceholder: '2-3 конкретных улучшения',
+      expectedTextAnswer:
+        'Уточнить критерии приемки, усилить контроль входных данных и ввести регулярный review рисков на контрольных точках.',
+    },
+    {
+      type: TestQuestionType.single_choice,
+      title: 'Какой показатель важнее всего для управляемости этапа?',
+      options: [
+        { text: 'Отклонение план/факт и качество результата', isCorrect: true },
+        { text: 'Только количество задач в бэклоге', isCorrect: false },
+        { text: 'Только субъективная оценка команды', isCorrect: false },
+      ],
+    },
+  ];
 }
 
 async function cleanupOwnerData(ownerId: number) {
@@ -485,18 +1091,29 @@ async function seedMaterials(unit: UnitRefs, ownerId: number) {
   }
 
   for (let i = 0; i < MATERIALS_PER_UNIT; i += 1) {
-    const template = MATERIAL_TEMPLATES[i % MATERIAL_TEMPLATES.length];
+    const article = MATERIAL_ARTICLES[i % MATERIAL_ARTICLES.length];
     const category = sample(categories);
+    const linkedProcessesForBody = sampleManyUnique(unit.processes, Math.min(3, unit.processes.length));
+    const linkedTasksForBody = sampleManyUnique(unit.tasks, Math.min(4, unit.tasks.length));
+    const expertsForBody = sampleManyUnique(unit.employees, Math.min(3, unit.employees.length)).map((e) => e.fullName);
+    const content = buildMaterialContent({
+      article,
+      unitName: unit.unitName,
+      processNames: linkedProcessesForBody.map((p) => p.name),
+      taskNames: linkedTasksForBody.map((t) => t.name),
+      experts: expertsForBody,
+    });
+
     const material = await prisma.material.create({
       data: {
-        name: `${template}: ${unit.unitName}`,
-        content: `# ${template}\n\nПодразделение: ${unit.unitName}\n\n1. Подготовить входные данные.\n2. Выполнить работы согласно регламенту.\n3. Проверить качество и зафиксировать результаты.\n4. Передать результат следующей роли.\n`,
+        name: `${article.title}: ${unit.unitName}`,
+        content,
         categoryId: category.id,
         userId: ownerId,
       },
     });
 
-    for (const process of sampleManyUnique(unit.processes, 2)) {
+    for (const process of sampleManyUnique(unit.processes, 3)) {
       await prisma.processMaterial.create({
         data: {
           processId: process.id,
@@ -504,7 +1121,7 @@ async function seedMaterials(unit: UnitRefs, ownerId: number) {
         },
       });
     }
-    for (const task of sampleManyUnique(unit.tasks, 3)) {
+    for (const task of sampleManyUnique(unit.tasks, 4)) {
       await prisma.taskMaterial.create({
         data: {
           taskId: task.id,
@@ -522,74 +1139,38 @@ async function seedTests(unit: UnitRefs, ownerId: number) {
     const linkedProcesses = sampleManyUnique(unit.processes, Math.min(3, unit.processes.length));
     const linkedTasks = sampleManyUnique(unit.tasks, Math.min(5, unit.tasks.length));
 
+    const questions = buildQuestionsForTest({
+      unitName: unit.unitName,
+      processNames: linkedProcesses.map((p) => p.name),
+      experts: linkedEmployees.map((e) => e.fullName),
+      testIndex: i,
+    });
+
     const test = await prisma.test.create({
       data: {
         name: `Аттестация по процессам (${unit.unitName}) #${i}`,
         description: `Проверка знаний и практик исполнения процессов в "${unit.unitName}".`,
-        timeLimitMinutes: 30 + i * 5,
+        timeLimitMinutes: 45 + i * 10,
         userId: ownerId,
         questions: {
-          create: [
-            {
-              type: TestQuestionType.single_choice,
-              title: `Что является обязательным входом для этапа в "${unit.unitName}"?`,
-              description: 'Выберите один корректный вариант.',
-              order: 1,
-              options: {
-                create: [
-                  { text: 'Согласованные требования и цели', isCorrect: true, order: 1 },
-                  { text: 'Устная договоренность без фиксации', isCorrect: false, order: 2 },
-                  { text: 'Произвольные данные', isCorrect: false, order: 3 },
-                ],
-              },
-            },
-            {
-              type: TestQuestionType.multiple_choice,
-              title: `Какие признаки качественного результата в "${unit.unitName}"?`,
-              order: 2,
-              options: {
-                create: [
-                  { text: 'Есть критерии приемки', isCorrect: true, order: 1 },
-                  { text: 'Есть подтверждение ответственной роли', isCorrect: true, order: 2 },
-                  { text: 'Есть план дальнейших действий', isCorrect: true, order: 3 },
-                  { text: 'Нет документированного контекста', isCorrect: false, order: 4 },
-                ],
-              },
-            },
-            {
-              type: TestQuestionType.text,
-              title: `Кратко опишите цель процесса в "${unit.unitName}"`,
-              order: 3,
-              textAnswerPlaceholder: 'Ожидаемый результат процесса',
-              expectedTextAnswer:
-                'Процесс должен завершаться предсказуемым результатом, подтвержденным ответственными ролями.',
-            },
-            {
-              type: TestQuestionType.single_choice,
-              title: `Кто несет ответственность за итог этапа в "${unit.unitName}"?`,
-              order: 4,
-              options: {
-                create: [
-                  { text: 'Назначенная ответственная роль', isCorrect: true, order: 1 },
-                  { text: 'Любой участник команды', isCorrect: false, order: 2 },
-                  { text: 'Внешний наблюдатель', isCorrect: false, order: 3 },
-                ],
-              },
-            },
-            {
-              type: TestQuestionType.multiple_choice,
-              title: `Что должно попадать в статус-отчет этапа?`,
-              order: 5,
-              options: {
-                create: [
-                  { text: 'Текущий статус и отклонения', isCorrect: true, order: 1 },
-                  { text: 'Риски и меры реагирования', isCorrect: true, order: 2 },
-                  { text: 'Факты по качеству', isCorrect: true, order: 3 },
-                  { text: 'Личные комментарии без фактов', isCorrect: false, order: 4 },
-                ],
-              },
-            },
-          ],
+          create: questions.map((question, index) => ({
+            type: question.type,
+            title: question.title,
+            description: question.description,
+            order: index + 1,
+            isRequired: true,
+            textAnswerPlaceholder: question.textAnswerPlaceholder,
+            expectedTextAnswer: question.expectedTextAnswer,
+            options: question.options
+              ? {
+                  create: question.options.map((option, optionIndex) => ({
+                    text: option.text,
+                    isCorrect: option.isCorrect,
+                    order: optionIndex + 1,
+                  })),
+                }
+              : undefined,
+          })),
         },
         employeeLinks: {
           create: linkedEmployees.map((e) => ({ employeeId: e.id })),
@@ -607,8 +1188,8 @@ async function seedTests(unit: UnitRefs, ownerId: number) {
     });
 
     for (const assignee of linkedEmployees.slice(0, 2)) {
-      const totalQuestions = 5;
-      const correctAnswers = 3 + Math.floor(Math.random() * 3);
+      const totalQuestions = questions.length;
+      const correctAnswers = Math.max(8, Math.floor(totalQuestions * (0.65 + Math.random() * 0.3)));
       const percentage = Number(((correctAnswers / totalQuestions) * 100).toFixed(2));
       await prisma.testResult.create({
         data: {

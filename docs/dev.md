@@ -27,6 +27,8 @@ docker compose run --rm --no-deps backend sh -lc "npm ci --include=dev && BULK_S
 
 ```bash
 # Важно: этот сидер очищает данные owner (admin) и создает новый реалистичный демо-набор
+# В материалах: разные полноразмерные markdown-статьи с внешними ссылками и видео
+# В тестах: расширенные наборы вопросов (single/multiple/text), а не короткие шаблоны
 ```
 
 ```angular2html
