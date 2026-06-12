@@ -74,27 +74,27 @@ const ROLE_TEMPLATES = [
   'Эксперт домена',
 ];
 
-const FIRST_NAMES = [
-  'Александр',
-  'Ирина',
-  'Дмитрий',
-  'Елена',
-  'Иван',
-  'Мария',
-  'Павел',
-  'Ольга',
-  'Сергей',
-  'Наталья',
-  'Роман',
-  'Анна',
-  'Николай',
-  'Татьяна',
-  'Артем',
-  'Екатерина',
-  'Максим',
-  'Светлана',
-  'Алексей',
-  'Юлия',
+const FIRST_NAMES: Array<{ name: string; gender: 'male' | 'female' }> = [
+  { name: 'Александр', gender: 'male' },
+  { name: 'Ирина', gender: 'female' },
+  { name: 'Дмитрий', gender: 'male' },
+  { name: 'Елена', gender: 'female' },
+  { name: 'Иван', gender: 'male' },
+  { name: 'Мария', gender: 'female' },
+  { name: 'Павел', gender: 'male' },
+  { name: 'Ольга', gender: 'female' },
+  { name: 'Сергей', gender: 'male' },
+  { name: 'Наталья', gender: 'female' },
+  { name: 'Роман', gender: 'male' },
+  { name: 'Анна', gender: 'female' },
+  { name: 'Николай', gender: 'male' },
+  { name: 'Татьяна', gender: 'female' },
+  { name: 'Артем', gender: 'male' },
+  { name: 'Екатерина', gender: 'female' },
+  { name: 'Максим', gender: 'male' },
+  { name: 'Светлана', gender: 'female' },
+  { name: 'Алексей', gender: 'male' },
+  { name: 'Юлия', gender: 'female' },
 ];
 
 const LAST_NAMES = [
@@ -630,7 +630,24 @@ function unitNameByIndex(index: number): string {
 function employeeFullName(seedIndex: number): string {
   const firstName = FIRST_NAMES[seedIndex % FIRST_NAMES.length];
   const lastName = LAST_NAMES[(seedIndex * 7) % LAST_NAMES.length];
-  return `${lastName} ${firstName}`;
+  return `${formatLastName(lastName, firstName.gender)} ${firstName.name}`;
+}
+
+function formatLastName(lastName: string, gender: 'male' | 'female'): string {
+  if (gender === 'male') return lastName;
+  if (lastName.endsWith('ский')) return `${lastName.slice(0, -4)}ская`;
+  if (lastName.endsWith('цкий')) return `${lastName.slice(0, -4)}цкая`;
+  if (lastName.endsWith('ой')) return `${lastName.slice(0, -2)}ая`;
+  if (
+    lastName.endsWith('ов') ||
+    lastName.endsWith('ев') ||
+    lastName.endsWith('ёв') ||
+    lastName.endsWith('ин') ||
+    lastName.endsWith('ын')
+  ) {
+    return `${lastName}а`;
+  }
+  return lastName;
 }
 
 function buildMaterialContent(params: {
