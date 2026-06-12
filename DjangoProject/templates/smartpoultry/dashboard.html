@@ -152,13 +152,6 @@
 </div>
 
 <div class="card border-0 shadow-sm mb-3">
-    <div class="card-header bg-white"><strong>Остаток корма в днях</strong></div>
-    <div class="card-body">
-        <canvas id="feedDaysChart" height="90"></canvas>
-    </div>
-</div>
-
-<div class="card border-0 shadow-sm mb-3">
     <div class="card-header bg-white"><strong>Последние инциденты</strong></div>
     <div class="table-responsive">
         <table class="table table-sm align-middle mb-0">
@@ -219,8 +212,6 @@
 {{ efficiency_standard|json_script:"chart-eff-standard" }}
 {{ finance_profit|json_script:"chart-profit-values" }}
 {{ sales_trend|json_script:"chart-sales-values" }}
-{{ feed_days_labels|json_script:"chart-feed-days-labels" }}
-{{ feed_days_values|json_script:"chart-feed-days-values" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
@@ -229,8 +220,6 @@
     const effStandard = JSON.parse(document.getElementById("chart-eff-standard").textContent);
     const profitValues = JSON.parse(document.getElementById("chart-profit-values").textContent);
     const salesValues = JSON.parse(document.getElementById("chart-sales-values").textContent);
-    const feedDaysLabels = JSON.parse(document.getElementById("chart-feed-days-labels").textContent);
-    const feedDaysValues = JSON.parse(document.getElementById("chart-feed-days-values").textContent);
 
     new Chart(document.getElementById("efficiencyChart"), {
         type: "line",
@@ -252,15 +241,6 @@
                 { label: "Прибыль", data: profitValues, backgroundColor: "#16a34a" },
                 { label: "Продажи", data: salesValues, backgroundColor: "#2563eb" }
             ]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    new Chart(document.getElementById("feedDaysChart"), {
-        type: "bar",
-        data: {
-            labels: feedDaysLabels,
-            datasets: [{ label: "Дней до нуля", data: feedDaysValues, backgroundColor: "#0ea5e9" }]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });

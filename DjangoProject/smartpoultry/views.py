@@ -428,8 +428,6 @@ def dashboard(request):
         round(finance_rows.get(chart_start + timedelta(days=offset), 0), 2)
         for offset in range(14)
     ]
-    feed_days_labels = list(feed_days_map.keys())
-    feed_days_values = [round(value, 2) for value in feed_days_map.values()]
     sales_rows = {
         row["sale_date"]: float(row["total"] or 0)
         for row in Sale.objects.filter(sale_date__range=[chart_start, today])
@@ -459,8 +457,6 @@ def dashboard(request):
         "efficiency_standard": efficiency_standard,
         "finance_profit": finance_profit,
         "sales_trend": sales_trend,
-        "feed_days_labels": feed_days_labels,
-        "feed_days_values": feed_days_values,
         "overall_eff_today": overall_eff_today,
         "overall_standard_today": overall_standard_today,
     }
